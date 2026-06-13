@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
@@ -11,7 +11,7 @@ body {
   margin: 0;
 }
 
-.main-home {
+.main {
   position: relative;
 }
 
@@ -107,22 +107,22 @@ body {
 
 .hero-h1 {
   color: #369;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 250%;
 }
 
 .hero-h2,
 .hero-h3 {
   color: #444;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: lighter;
 }
 
 .hero-tour,
-.hero-input[type="text"],
+.hero-input[type='text'],
 .hero-btn {
   color: #333;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .hero-btn {
