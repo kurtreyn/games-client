@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { WebsocketTest } from '../../games/websocket-test/websocket-test';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [WebsocketTest],
   templateUrl: './home.html',
-  styleUrl: './home.scss',
+  styleUrls: ['./home.scss'],
 })
-export class Home {}
+export class Home { }
