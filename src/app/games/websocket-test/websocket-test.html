@@ -4,28 +4,37 @@
       class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
     >
       <h5 class="mb-0">WebSocket Messenger</h5>
-      <span class="badge" [ngClass]="isConnected ? 'bg-success' : 'bg-danger'">
-        {{ isConnected ? 'Connected' : 'Disconnected' }}
+      <span class="badge" [ngClass]="isConnected() ? 'bg-success' : 'bg-danger'">
+        {{ isConnected() ? 'Connected' : 'Disconnected' }}
       </span>
     </div>
 
-    <!-- Message History Window -->
     <div class="card-body bg-light" style="height: 300px; overflow-y: auto">
-      <div *ngIf="messages.length === 0" class="text-muted text-center mt-5">
-        No messages yet. Send a message to start chatting!
-      </div>
-      <div *ngFor="let msg of messages" class="mb-2 p-2 rounded shadow-xs bg-white text-dark">
-        <small class="text-muted d-block font-monospace">{{
-          msg.timestamp | date: 'mediumTime'
-        }}</small>
-        <strong>{{ msg.type === 'sent' ? 'You' : 'Server' }}:</strong> {{ msg.text }}
-      </div>
+      @for (msg of messages(); track msg.timestamp) {
+        @switch (msg.type) {
+          @case ('notification') {
+            <div class="text-center my-2 text-muted small bg-warning-subtle py-1 rounded">
+              📢 {{ msg.text }} —
+              <span class="font-monospace">{{ msg.timestamp | date: 'shortTime' }}</span>
+            </div>
+          }
+          @default {
+            <div class="mb-2 p-2 rounded shadow-xs bg-white text-dark">
+              <small class="text-muted d-block font-monospace">{{
+                msg.timestamp | date: 'mediumTime'
+              }}</small>
+              <strong>Message:</strong> {{ msg.text }}
+            </div>
+          }
+        }
+      } @empty {
+        <div class="text-muted text-center mt-5">No messages yet.</div>
+      }
     </div>
 
-    <!-- Message Input Form -->
     <div class="card-footer">
       <form
-        (ngSubmit)="sendMessage(messageInput.value); messageInput.value = ''"
+        (ngSubmit)="onFormSubmit(messageInput.value); messageInput.value = ''"
         class="input-group"
       >
         <input
@@ -33,10 +42,10 @@
           type="text"
           class="form-control"
           placeholder="Type your message here..."
-          [disabled]="!isConnected"
+          [disabled]="!isConnected()"
           required
         />
-        <button class="btn btn-primary" type="submit" [disabled]="!isConnected">Send</button>
+        <button class="btn btn-primary" type="submit" [disabled]="!isConnected()">Send</button>
       </form>
     </div>
   </div>
