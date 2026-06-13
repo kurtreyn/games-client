@@ -29,9 +29,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.sass"
-            ]
+            "styles": ["node_modules/bootstrap/dist/css/bootstrap.min.css", "src/styles.sass"]
           },
           "configurations": {
             "production": {
