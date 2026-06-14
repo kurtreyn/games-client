@@ -15,64 +15,36 @@ import { SocketMessage } from '../../models/socket.interface';
 
 export class WebsocketTest implements OnInit, OnDestroy {
   private _subs = new Subscription();
-  private _socket: WebSocket | null = null;
-  private _socketPort = 8001;
-  private _localHost = 'ws://127.0.0.1:';
 
-  // Signals for state management
+  // Component manages state via Signals exactly as requested
   public isConnected = signal(false);
   public messages = signal<SocketMessage[]>([]);
 
-  constructor
-    (
-      private _apiService: ApiService
-
-    ) { }
+  constructor(private _apiService: ApiService) { }
 
   ngOnInit(): void {
-    console.log('ngOnInit called, attempting to connect to WebSocket server...');
-    // 1. Set up WebSocket connection
-    this._socket = new WebSocket(`${this._localHost}${this._socketPort}`);
+    console.log('ngOnInit called, invoking ApiService connection...');
 
-    // 2. Handle Connection Open and Close Events
-    this._socket.onopen = () => {
-      console.log('WebSocket connection established');
-      this.isConnected.set(true);
-    };
+    // 1. Listen to connection status and update state signal
+    this._subs.add(
+      this._apiService.connectToServer().subscribe({
+        next: (status) => this.isConnected.set(status),
+        error: () => this.isConnected.set(false)
+      })
+    );
 
-    this._socket.onclose = () => {
-      console.log('WebSocket connection closed');
-      this.isConnected.set(false);
-    };
-
-    this._socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      this.isConnected.set(false);
-    };
-
-    // 3. Listen for Incoming Chat Messages
-    this._socket.onmessage = (event: MessageEvent) => {
-      try {
-        const rawData = JSON.parse(event.data);
-
-        const incomingMessage: SocketMessage = {
-          type: rawData.type,
-          text: rawData.text,
-          // CRITICAL: Convert the incoming JSON ISO string back into a real Date object
-          timestamp: new Date(rawData.timestamp)
-        };
-
-        console.log('Received sanitized message:', incomingMessage);
-        this.messages.update(prev => [...prev, incomingMessage]);
-      } catch (error) {
-        console.error('Parsing error', error);
-      }
-    };
-
-
+    // 2. Listen for incoming messages and update state signal
+    this._subs.add(
+      this._apiService.getMessages().subscribe({
+        next: (incomingMessage) => {
+          console.log('Received sanitized message:', incomingMessage);
+          this.messages.update(prev => [...prev, incomingMessage]);
+        }
+      })
+    );
   }
 
-  // Handle message dispatching securely
+  // Handle message dispatching and update local message state
   onFormSubmit(text: string): void {
     const cleanedText = text.trim();
     if (!cleanedText) return;
@@ -83,20 +55,18 @@ export class WebsocketTest implements OnInit, OnDestroy {
       timestamp: new Date()
     };
 
-    // Send over the active socket connection
-    if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-      this._socket.send(JSON.stringify(outgoingMessage));
-      console.log('Sent to server:', outgoingMessage);
+    // Dispatch via service
+    const sentSuccessfully = this._apiService.sendMessage(outgoingMessage);
+
+    // Update local list state if sent (or unconditionally, depending on your preferred UI behavior)
+    if (sentSuccessfully) {
+      this.messages.update(prev => [...prev, outgoingMessage]);
     }
-
-    // Update the UI locally inside Angular's zone
-
-    this.messages.update(prev => [...prev, outgoingMessage]);
-
   }
 
   ngOnDestroy(): void {
-    this._socket?.close();
+    // Tell service to disconnect and clean up component subscriptions
+    this._apiService.disconnect();
     this._subs.unsubscribe();
   }
 }

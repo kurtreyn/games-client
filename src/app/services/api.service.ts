@@ -8,39 +8,84 @@ import { SocketMessage } from '../models/socket.interface';
 export class ApiService {
   private _socketPort = 8001;
   private _localHost = 'ws://localhost:';
+  private _socket: WebSocket | null = null;
+
+  // A Subject to multi-cast incoming messages to the component
+  private _message$ = new Subject<SocketMessage>();
 
   constructor() { }
 
+  /**
+   * Initializes connection and returns an Observable tracking connection status.
+   */
+  public connectToServer(): Observable<boolean> {
+    this._socket = new WebSocket(`${this._localHost}${this._socketPort}`);
 
-  public connectToServer(): Observable<WebSocket> {
-    const socket = new WebSocket(`${this._localHost}${this._socketPort}`);
-    return new Observable(socketObserver => {
-      socket.onopen = () => {
+    return new Observable<boolean>(observer => {
+      if (!this._socket) return;
+
+      this._socket.onopen = () => {
         console.log('WebSocket connection established');
-        socketObserver.next(socket);
+        observer.next(true);
       };
-      socket.onerror = (error) => {
+
+      this._socket.onerror = (error) => {
         console.error('WebSocket error:', error);
-        socketObserver.error(error);
+        observer.next(false);
+        observer.error(error);
       };
-      socket.onclose = () => {
+
+      this._socket.onclose = () => {
         console.log('WebSocket connection closed');
-        socketObserver.complete();
+        observer.next(false);
+        observer.complete();
+      };
+
+      // Handle message parsing directly in the stream setup
+      this._socket.onmessage = (event: MessageEvent) => {
+        try {
+          const rawData = JSON.parse(event.data);
+          const incomingMessage: SocketMessage = {
+            type: rawData.type,
+            text: rawData.text,
+            timestamp: new Date(rawData.timestamp) // ISO to Date conversion
+          };
+
+          this._message$.next(incomingMessage);
+        } catch (error) {
+          console.error('Parsing error', error);
+        }
       };
     });
   }
 
-  // public getMessages(): Observable<SocketMessage> {
-  //   return this._messages$.asObservable();
-  // }
+  /**
+   * Exposes the message stream to the component
+   */
+  public getMessages(): Observable<SocketMessage> {
+    return this._message$.asObservable();
+  }
 
-  // // Update this to accept your object structure
-  // public sendMessage(message: SocketMessage): void {
-  //   if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-  //     // Serialize the object into a JSON string before sending
-  //     this._socket.send(JSON.stringify(message));
-  //   } else {
-  //     console.error('WebSocket is not connected.');
-  //   }
-  // }
+  /**
+   * Handles sending data to the open socket
+   */
+  public sendMessage(message: SocketMessage): boolean {
+    if (this._socket && this._socket.readyState === WebSocket.OPEN) {
+      this._socket.send(JSON.stringify(message));
+      console.log('Sent to server:', message);
+      return true;
+    }
+    console.warn('Cannot send message, socket is not open.');
+    return false;
+  }
+
+  /**
+   * Disconnects the socket safely
+   */
+  public disconnect(): void {
+    if (this._socket) {
+      this._socket.close();
+      this._socket = null;
+    }
+  }
 }
