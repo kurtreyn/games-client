@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// import { ApiService } from '../../services/api.service';
+import { ApiService } from '../../services/api.service';
 import { Subscription } from 'rxjs';
 import { SocketMessage } from '../../models/socket.interface';
 
@@ -25,9 +25,9 @@ export class WebsocketTest implements OnInit, OnDestroy {
 
   constructor
     (
-    // private _apiService: ApiService
+      private _apiService: ApiService
 
-  ) { }
+    ) { }
 
   ngOnInit(): void {
     console.log('ngOnInit called, attempting to connect to WebSocket server...');
