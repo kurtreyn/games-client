@@ -33,20 +33,25 @@
     </div>
 
     <div class="card-footer">
-      <form
-        (ngSubmit)="onFormSubmit(messageInput.value); messageInput.value = ''"
-        class="input-group"
-      >
+      <div class="input-group">
         <input
           #messageInput
           type="text"
           class="form-control"
           placeholder="Type your message here..."
           [disabled]="!isConnected()"
+          (keyup.enter)="onFormSubmit(messageInput.value); messageInput.value = ''"
           required
         />
-        <button class="btn btn-primary" type="submit" [disabled]="!isConnected()">Send</button>
-      </form>
+        <button
+          class="btn btn-primary"
+          type="button"
+          [disabled]="!isConnected()"
+          (click)="onFormSubmit(messageInput.value); messageInput.value = ''"
+        >
+          Send
+        </button>
+      </div>
     </div>
   </div>
 </div>
