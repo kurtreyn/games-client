@@ -19,6 +19,7 @@ export class WebsocketTest implements OnInit, OnDestroy {
   // Component manages state via Signals exactly as requested
   public isConnected = signal(false);
   public messages = signal<SocketMessage[]>([]);
+  public userName = signal('')
 
   constructor(private _apiService: ApiService) { }
 
@@ -52,7 +53,8 @@ export class WebsocketTest implements OnInit, OnDestroy {
     const outgoingMessage: SocketMessage = {
       type: 'chat',
       text: cleanedText,
-      timestamp: new Date()
+      userName: this.userName(),
+      timeStamp: new Date()
     };
 
     // Dispatch via service
@@ -62,6 +64,13 @@ export class WebsocketTest implements OnInit, OnDestroy {
     if (sentSuccessfully) {
       this.messages.update(prev => [...prev, outgoingMessage]);
     }
+  }
+
+  onUserNameSubmit(name: string): void {
+    const cleanedName = name.trim();
+    if (!cleanedName) return;
+
+    this.userName.set(cleanedName);
   }
 
   ngOnDestroy(): void {

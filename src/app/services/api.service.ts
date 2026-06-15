@@ -48,7 +48,8 @@ export class ApiService {
           const incomingMessage: SocketMessage = {
             type: rawData.type,
             text: rawData.text,
-            timestamp: new Date(rawData.timestamp) // ISO to Date conversion
+            userName: rawData.userName,
+            timeStamp: new Date(rawData.timeStamp) // ISO to Date conversion
           };
 
           this._message$.next(incomingMessage);
