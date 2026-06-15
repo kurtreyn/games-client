@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { SocketMessage } from '../models/socket.interface';
 
+/**
+ * Using console logs to trace component lifecycle and message flow for debugging purposes. Ensuring that all interactions with the ApiService are logged for visibility into connection status and message handling.
+ */
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,6 +49,7 @@ export class ApiService {
       this._socket.onmessage = (event: MessageEvent) => {
         try {
           const rawData = JSON.parse(event.data);
+
           const incomingMessage: SocketMessage = {
             type: rawData.type,
             text: rawData.text,

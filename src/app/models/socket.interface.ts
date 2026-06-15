@@ -1,6 +1,6 @@
 export interface SocketMessage {
-    type: string; // e.g., 'chat', 'notification', etc.
+    type: 'chat' | 'notification';
     text: string; // The actual message content
-    userName?: string; // Optional: who sent the message
-    timeStamp: Date; // When the message was sent
+    userName?: string;
+    timeStamp: Date;
 }

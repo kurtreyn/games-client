@@ -4,6 +4,10 @@ import { ApiService } from '../../services/api.service';
 import { Subscription } from 'rxjs';
 import { SocketMessage } from '../../models/socket.interface';
 
+/**
+ * Using console logs to trace component lifecycle and message flow for debugging purposes. Ensuring that all interactions with the ApiService are logged for visibility into connection status and message handling.
+ */
+
 
 
 @Component({
