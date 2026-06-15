@@ -2,4 +2,4 @@
 
 ## Node Version
 
-v22.0.0
+v22.22.3
