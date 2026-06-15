@@ -1,0 +1,111 @@
+// --- Hamburger Trigger Button ---
+.menu-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #222;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  .hamburger-bar {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+  }
+}
+
+// --- Dark Dim Backdrop ---
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+
+  &.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// --- Slide-out Menu Container ---
+.menu-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px; // Width of your sidebar menu
+  height: 100vh;
+  background-color: #1a1a1a;
+  color: #fff;
+  z-index: 100;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+
+  // Slide out of view initially (left)
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // When active, slide into view
+  &.is-open {
+    transform: translateX(0);
+  }
+}
+
+// --- Menu Inner Layout ---
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #333;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.menu-links {
+  list-style: none;
+  padding: 1rem 0;
+  margin: 0;
+
+  li {
+    display: block;
+    padding: 1rem 1.5rem;
+    color: #ccc;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s;
+
+    &:hover {
+      background-color: #2a2a2a;
+      color: #fff;
+    }
+  }
+}

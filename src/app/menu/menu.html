@@ -1,0 +1,22 @@
+<!-- 1. Hamburger Button (Always visible until menu opens) -->
+<button class="menu-toggle" (click)="toggleMenu()" aria-label="Toggle menu">
+  <span class="hamburger-bar"></span>
+  <span class="hamburger-bar"></span>
+  <span class="hamburger-bar"></span>
+</button>
+
+<!-- 2. Dark Overlay Backdrop (Closes menu when clicked) -->
+<div class="menu-backdrop" [class.is-open]="isOpen()" (click)="closeMenu()"></div>
+
+<!-- 3. The actual Slide-out Drawer -->
+<nav class="menu-drawer" [class.is-open]="isOpen()">
+  <div class="menu-header">
+    <h3>Navigation</h3>
+    <button class="close-btn" (click)="closeMenu()">&times;</button>
+  </div>
+
+  <ul class="menu-links">
+    <li (click)="navigateTo('')">Home</li>
+    <li (click)="navigateTo('games')">Games</li>
+  </ul>
+</nav>

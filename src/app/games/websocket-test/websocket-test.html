@@ -1,0 +1,84 @@
+<div class="container max-width-md mt-5">
+  <div class="card shadow-sm">
+    <div
+      class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+    >
+      <h5 class="mb-0">WebSocket Messenger</h5>
+      <span class="badge" [ngClass]="isConnected() ? 'bg-success' : 'bg-danger'">
+        {{ isConnected() ? 'Connected' : 'Disconnected' }}
+      </span>
+    </div>
+    <div class="card-subtitle text-muted">User: {{ userName() }}</div>
+
+    <div class="card-body bg-light" style="height: 300px; overflow-y: auto">
+      @if (userName() === '') {
+        <ng-container>
+          <div class="input-group">
+            <input
+              #userNameInput
+              type="text"
+              class="form-control"
+              placeholder="Enter your name to connect..."
+              [disabled]="!isConnected()"
+              (keyup.enter)="onUserNameSubmit(userNameInput.value); userNameInput.value = ''"
+              required
+            />
+            <button
+              class="btn btn-primary"
+              type="button"
+              [disabled]="!isConnected()"
+              (click)="onUserNameSubmit(userNameInput.value); userNameInput.value = ''"
+            >
+              Add User
+            </button>
+          </div>
+        </ng-container>
+      } @else {
+        <ng-container>
+          @for (msg of messages(); track msg.timeStamp) {
+            @switch (msg.type) {
+              @case ('notification') {
+                <div class="text-center my-2 text-muted small bg-warning-subtle py-1 rounded">
+                  📢 {{ msg.text }} —
+                  <span class="font-monospace">{{ msg.timeStamp | date: 'shortTime' }}</span>
+                </div>
+              }
+              @default {
+                <div class="mb-2 p-2 rounded shadow-xs bg-white text-dark">
+                  <small class="text-muted d-block font-monospace">{{
+                    msg.timeStamp | date: 'mediumTime'
+                  }}</small>
+                  <strong>{{ msg.userName }}:</strong> {{ msg.text }}
+                </div>
+              }
+            }
+          } @empty {
+            <div class="text-muted text-center mt-5">No messages yet.</div>
+          }
+        </ng-container>
+      }
+    </div>
+
+    <div class="card-footer" *ngIf="userName() !== ''">
+      <div class="input-group">
+        <input
+          #messageInput
+          type="text"
+          class="form-control"
+          placeholder="Type your message here..."
+          [disabled]="!isConnected()"
+          (keyup.enter)="onFormSubmit(messageInput.value); messageInput.value = ''"
+          required
+        />
+        <button
+          class="btn btn-primary"
+          type="button"
+          [disabled]="!isConnected()"
+          (click)="onFormSubmit(messageInput.value); messageInput.value = ''"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
