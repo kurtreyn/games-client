@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ResourceMap } from '../../resources/resource-map';
 
 @Component({
   selector: 'app-games',
@@ -6,4 +7,8 @@ import { Component } from '@angular/core';
   templateUrl: './games.html',
   styleUrl: './games.scss',
 })
-export class Games {}
+export class Games implements OnInit {
+  public resourceMap = ResourceMap;
+
+  ngOnInit(): void { }
+}

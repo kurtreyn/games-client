@@ -17,7 +17,7 @@ export class AbstractChat implements OnInit {
 
   public isConnected = signal(false);
   public messages = signal<SocketMessage[]>([]);
-  public userName = signal('Kurt');
+  public userName = signal('');
 
   private _destroyRef = inject(DestroyRef);
 

@@ -1,3 +1,16 @@
 <div class="container mt-page">
-  <p>Games coming soon</p>
+  <div class="card" style="width: 18rem">
+    <!-- Card Image Header -->
+    <img [src]="resourceMap.rummy_cards" class="card-img-top" alt="Rummy Cards Table Preview" />
+
+    <!-- Card Content Body -->
+    <div class="card-body">
+      <h5 class="card-title">{{ resourceMap.rummy_title }}</h5>
+      <p class="card-text text-muted">
+        {{ resourceMap.rummy_description }}
+      </p>
+      <a [href]="resourceMap.rummy_link" class="btn btn-primary w-100">Explore Content</a>
+    </div>
+  </div>
+  <div class="notice">COMING SOON</div>
 </div>
