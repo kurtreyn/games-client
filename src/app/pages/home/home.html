@@ -1,4 +1,7 @@
 <div class="container mt-page">
-  <app-notifications></app-notifications>
+  @if (!isConnected()) {
+    <app-notifications></app-notifications>
+  }
+
   <app-websocket-test></app-websocket-test>
 </div>

@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AbstractChat } from '../../directives/abstract-chat';
 import { ApiService } from '../../services/api.service';
-import { Subscription } from 'rxjs';
 import { SocketMessage } from '../../models/socket.interface';
 
 /**
@@ -17,14 +17,7 @@ import { SocketMessage } from '../../models/socket.interface';
   styleUrls: ['./websocket-test.scss'],
 })
 
-export class WebsocketTest implements OnInit, OnDestroy, AfterViewChecked {
-  private _subs = new Subscription();
-
-  // Component manages state via Signals exactly as requested
-  public isConnected = signal(false);
-  public messages = signal<SocketMessage[]>([]);
-  public userName = signal('')
-
+export class WebsocketTest extends AbstractChat implements AfterViewChecked {
   private _scrollContainerElement!: ElementRef;
 
   @ViewChild('scrollContainer', { static: false }) set scrollContainer(content: ElementRef) {
@@ -35,39 +28,16 @@ export class WebsocketTest implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  constructor(private _apiService: ApiService) { }
-
-  ngOnInit(): void {
-    console.log('ngOnInit called, invoking ApiService connection...');
-
-    // 1. Listen to connection status and update state signal
-    this._subs.add(
-      this._apiService.connectToServer().subscribe({
-        next: (status) => this.isConnected.set(status),
-        error: () => this.isConnected.set(false)
-      })
-    );
-
-    // 2. Listen for incoming messages and update state signal
-    this._subs.add(
-      this._apiService.getMessages().subscribe({
-        next: (incomingMessage) => {
-          console.log('Received sanitized message:', incomingMessage);
-          this.messages.update(prev => [...prev, incomingMessage]);
-        }
-      })
-    );
+  constructor(_apiService: ApiService) {
+    super(_apiService);
   }
+
+
 
   ngAfterViewChecked(): void {
     this._scrollToBottom();
   }
 
-  ngOnDestroy(): void {
-    // Tell service to disconnect and clean up component subscriptions
-    this._apiService.disconnect();
-    this._subs.unsubscribe();
-  }
 
   private _scrollToBottom(): void {
     const element = this._scrollContainerElement?.nativeElement;

@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Injectable, signal, Signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { SocketMessage } from '../models/socket.interface';
 
 /**
@@ -15,9 +16,12 @@ export class ApiService {
   private _productionHost = 'wss://games-socket-server.onrender.com';
   private _socket: WebSocket | null = null;
   private _useProduction = true; // Toggle for production vs local
+  private _isConnected$ = new BehaviorSubject<boolean>(false);
 
   // A Subject to multi-cast incoming messages to the component
   private _message$ = new Subject<SocketMessage>();
+
+  public isConnectedSignal: Signal<boolean> = toSignal(this._isConnected$, { requireSync: true });
 
   constructor() { }
 
@@ -32,17 +36,20 @@ export class ApiService {
 
       this._socket.onopen = () => {
         console.log('WebSocket connection established');
+        this._isConnected$.next(true);
         observer.next(true);
       };
 
       this._socket.onerror = (error) => {
         console.error('WebSocket error:', error);
+        this._isConnected$.next(false);
         observer.next(false);
         observer.error(error);
       };
 
       this._socket.onclose = () => {
         console.log('WebSocket connection closed');
+        this._isConnected$.next(false);
         observer.next(false);
         observer.complete();
       };
@@ -65,6 +72,10 @@ export class ApiService {
         }
       };
     });
+  }
+
+  public isConnected(): Observable<boolean> {
+    return this._isConnected$.asObservable();
   }
 
   /**
