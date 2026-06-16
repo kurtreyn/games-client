@@ -12,7 +12,9 @@ import { SocketMessage } from '../models/socket.interface';
 export class ApiService {
   private _socketPort = 8001;
   private _localHost = 'ws://localhost:';
+  private _productionHost = 'wss://games-socket-server.onrender.com';
   private _socket: WebSocket | null = null;
+  private _useProduction = true; // Toggle for production vs local
 
   // A Subject to multi-cast incoming messages to the component
   private _message$ = new Subject<SocketMessage>();
@@ -23,7 +25,7 @@ export class ApiService {
    * Initializes connection and returns an Observable tracking connection status.
    */
   public connectToServer(): Observable<boolean> {
-    this._socket = new WebSocket(`${this._localHost}${this._socketPort}`);
+    this._socket = new WebSocket(this._useProduction ? this._productionHost : `${this._localHost}${this._socketPort}`);
 
     return new Observable<boolean>(observer => {
       if (!this._socket) return;
