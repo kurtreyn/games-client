@@ -1,6 +1,7 @@
 export interface SocketMessage {
-    type: 'chat' | 'notification';
-    text: string; // The actual message content
+    type: 'chat' | 'notification' | 'user_count';
+    text?: string; // The actual message content
     userName?: string;
+    count?: number;
     timeStamp: Date;
 }

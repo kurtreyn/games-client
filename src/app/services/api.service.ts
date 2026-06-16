@@ -15,13 +15,14 @@ export class ApiService {
   private _localHost = 'ws://localhost:';
   private _productionHost = 'wss://games-socket-server.onrender.com';
   private _socket: WebSocket | null = null;
-  private _useProduction = true; // Toggle for production vs local
+  private _useProduction = false; // Toggle for production vs local
   private _isConnected$ = new BehaviorSubject<boolean>(false);
 
   // A Subject to multi-cast incoming messages to the component
   private _message$ = new Subject<SocketMessage>();
 
   public isConnectedSignal: Signal<boolean> = toSignal(this._isConnected$, { requireSync: true });
+  public activeUsersCount = signal<number>(0); // Default to 0 for initial state
 
   constructor() { }
 
@@ -58,6 +59,12 @@ export class ApiService {
       this._socket.onmessage = (event: MessageEvent) => {
         try {
           const rawData = JSON.parse(event.data);
+          console.log('Raw message received from server:', rawData);
+
+          if (rawData.type === 'user_count') {
+            this.activeUsersCount.set(rawData.count || 0);
+            return; // No need to emit a SocketMessage for user count updates
+          }
 
           const incomingMessage: SocketMessage = {
             type: rawData.type,
