@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { Subscription } from 'rxjs';
@@ -17,13 +17,23 @@ import { SocketMessage } from '../../models/socket.interface';
   styleUrls: ['./websocket-test.scss'],
 })
 
-export class WebsocketTest implements OnInit, OnDestroy {
+export class WebsocketTest implements OnInit, OnDestroy, AfterViewChecked {
   private _subs = new Subscription();
 
   // Component manages state via Signals exactly as requested
   public isConnected = signal(false);
   public messages = signal<SocketMessage[]>([]);
   public userName = signal('')
+
+  private _scrollContainerElement!: ElementRef;
+
+  @ViewChild('scrollContainer', { static: false }) set scrollContainer(content: ElementRef) {
+    if (content) {
+      this._scrollContainerElement = content;
+      // Force a scroll immediately when the element mounts to the DOM
+      this._executeScroll();
+    }
+  }
 
   constructor(private _apiService: ApiService) { }
 
@@ -49,8 +59,45 @@ export class WebsocketTest implements OnInit, OnDestroy {
     );
   }
 
+  ngAfterViewChecked(): void {
+    this._scrollToBottom();
+  }
+
+  ngOnDestroy(): void {
+    // Tell service to disconnect and clean up component subscriptions
+    this._apiService.disconnect();
+    this._subs.unsubscribe();
+  }
+
+  private _scrollToBottom(): void {
+    const element = this._scrollContainerElement?.nativeElement;
+    if (!element) return;
+
+    // Check if user is near the bottom (with a 20px buffer)
+    const atBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 20;
+
+    // If there are only 1 or 2 messages, force the scroll anyway
+    if (atBottom || this.messages().length <= 2) {
+      this._executeScroll();
+    }
+  }
+
+  private _executeScroll(): void {
+    setTimeout(() => {
+      try {
+        const element = this._scrollContainerElement?.nativeElement;
+        if (element) {
+          element.scrollTop = element.scrollHeight;
+        }
+      } catch (err) {
+        console.error('Error executing scroll:', err);
+      }
+    }, 0); // setTimeout pushes the scroll execution to the next macro-task layout cycle
+  }
+
+
   // Handle message dispatching and update local message state
-  onFormSubmit(text: string): void {
+  public onSubmitMessage(text: string): void {
     const cleanedText = text.trim();
     if (!cleanedText) return;
 
@@ -70,16 +117,12 @@ export class WebsocketTest implements OnInit, OnDestroy {
     }
   }
 
-  onUserNameSubmit(name: string): void {
+  public onUserNameSubmit(name: string): void {
     const cleanedName = name.trim();
     if (!cleanedName) return;
 
     this.userName.set(cleanedName);
   }
 
-  ngOnDestroy(): void {
-    // Tell service to disconnect and clean up component subscriptions
-    this._apiService.disconnect();
-    this._subs.unsubscribe();
-  }
+
 }

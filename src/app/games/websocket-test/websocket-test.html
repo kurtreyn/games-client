@@ -8,12 +8,12 @@
         {{ isConnected() ? 'Connected' : 'Disconnected' }}
       </span>
     </div>
-    <div class="card-subtitle text-muted">User: {{ userName() }}</div>
+    <div class="card-subtitle text-muted pd-2">User: {{ userName() }}</div>
 
-    <div class="card-body bg-light" style="height: 300px; overflow-y: auto">
+    <div class="card-body bg-light">
       @if (userName() === '') {
         <ng-container>
-          <div class="input-group">
+          <div class="input-group user-name-input-grp">
             <input
               #userNameInput
               type="text"
@@ -34,47 +34,51 @@
           </div>
         </ng-container>
       } @else {
-        <ng-container>
-          @for (msg of messages(); track msg.timeStamp) {
-            @switch (msg.type) {
-              @case ('notification') {
-                <div class="text-center my-2 text-muted small bg-warning-subtle py-1 rounded">
-                  📢 {{ msg.text }} —
-                  <span class="font-monospace">{{ msg.timeStamp | date: 'shortTime' }}</span>
-                </div>
+        <!-- Move the template reference variable here -->
+        <div #scrollContainer class="chat-history-wrapper" style="height: 400px; overflow-y: auto">
+          <ng-container>
+            @for (msg of messages(); track msg.timeStamp) {
+              @switch (msg.type) {
+                @case ('notification') {
+                  <div class="text-center my-2 text-muted small bg-warning-subtle py-1 rounded">
+                    📢 {{ msg.text }} —
+                    <span class="font-monospace">{{ msg.timeStamp | date: 'shortTime' }}</span>
+                  </div>
+                }
+                @default {
+                  <!-- Removed #scrollContainer from here -->
+                  <div class="mb-2 p-2 rounded shadow-xs bg-white text-dark">
+                    <small class="text-muted d-block font-monospace">
+                      {{ msg.timeStamp | date: 'mediumTime' }}
+                    </small>
+                    <strong>{{ msg.userName }}:</strong> {{ msg.text }}
+                  </div>
+                }
               }
-              @default {
-                <div class="mb-2 p-2 rounded shadow-xs bg-white text-dark">
-                  <small class="text-muted d-block font-monospace">{{
-                    msg.timeStamp | date: 'mediumTime'
-                  }}</small>
-                  <strong>{{ msg.userName }}:</strong> {{ msg.text }}
-                </div>
-              }
+            } @empty {
+              <div class="text-muted text-center mt-5">No messages yet.</div>
             }
-          } @empty {
-            <div class="text-muted text-center mt-5">No messages yet.</div>
-          }
-        </ng-container>
+          </ng-container>
+        </div>
       }
     </div>
 
     <div class="card-footer" *ngIf="userName() !== ''">
-      <div class="input-group">
+      <div class="input-group message-input-grp">
         <input
           #messageInput
           type="text"
           class="form-control"
           placeholder="Type your message here..."
           [disabled]="!isConnected()"
-          (keyup.enter)="onFormSubmit(messageInput.value); messageInput.value = ''"
+          (keyup.enter)="onSubmitMessage(messageInput.value); messageInput.value = ''"
           required
         />
         <button
           class="btn btn-primary"
           type="button"
           [disabled]="!isConnected()"
-          (click)="onFormSubmit(messageInput.value); messageInput.value = ''"
+          (click)="onSubmitMessage(messageInput.value); messageInput.value = ''"
         >
           Send
         </button>
