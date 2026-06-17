@@ -15,7 +15,7 @@ export class ApiService {
   private _localHost = 'ws://localhost:';
   private _productionHost = 'wss://games-socket-server.onrender.com';
   private _socket: WebSocket | null = null;
-  private _useProduction = false; // Toggle for production vs local
+  private _useProduction = true; // Toggle for production vs local
   private _isConnected$ = new BehaviorSubject<boolean>(false);
 
   // A Subject to multi-cast incoming messages to the component
