@@ -1,7 +1,7 @@
 import { Injectable, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
-import { SocketMessage } from '../models/socket.interface';
+import { ISocketMessage } from '../models/socket-message.interface';
 
 /**
  * Using console logs to trace component lifecycle and message flow for debugging purposes. Ensuring that all interactions with the ApiService are logged for visibility into connection status and message handling.
@@ -15,11 +15,11 @@ export class ApiService {
   private _localHost = 'ws://localhost:';
   private _productionHost = 'wss://games-socket-server.onrender.com';
   private _socket: WebSocket | null = null;
-  private _useProduction = true; // Toggle for production vs local
+  private _useProduction = false; // Toggle for production vs local
   private _isConnected$ = new BehaviorSubject<boolean>(false);
 
   // A Subject to multi-cast incoming messages to the component
-  private _message$ = new Subject<SocketMessage>();
+  private _message$ = new Subject<ISocketMessage>();
 
   public isConnectedSignal: Signal<boolean> = toSignal(this._isConnected$, { requireSync: true });
   public activeUsersCount = signal<number>(0); // Default to 0 for initial state
@@ -66,7 +66,7 @@ export class ApiService {
             return; // No need to emit a SocketMessage for user count updates
           }
 
-          const incomingMessage: SocketMessage = {
+          const incomingMessage: ISocketMessage = {
             type: rawData.type,
             text: rawData.text,
             userName: rawData.userName,
@@ -88,14 +88,14 @@ export class ApiService {
   /**
    * Exposes the message stream to the component
    */
-  public getMessages(): Observable<SocketMessage> {
+  public getMessages(): Observable<ISocketMessage> {
     return this._message$.asObservable();
   }
 
   /**
    * Handles sending data to the open socket
    */
-  public sendMessage(message: SocketMessage): boolean {
+  public sendMessage(message: ISocketMessage): boolean {
     if (this._socket && this._socket.readyState === WebSocket.OPEN) {
       this._socket.send(JSON.stringify(message));
       console.log('Sent to server:', message);

@@ -1,12 +1,11 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { ApiService } from '../../services/api.service';
-import { WebsocketTest } from '../../games/websocket-test/websocket-test';
+import { Chat } from '../../games/chat/chat';
 import { Notifications } from '../../notifications/notifications';
-// import { Games } from "../games/games";
 
 @Component({
   selector: 'app-home',
-  imports: [WebsocketTest, Notifications],
+  imports: [Chat, Notifications],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })

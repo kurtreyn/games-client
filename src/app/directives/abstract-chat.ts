@@ -3,7 +3,7 @@ import { OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService } from '../services/api.service';
 import { Subscription } from 'rxjs';
-import { SocketMessage } from '../models/socket.interface';
+import { ISocketMessage } from '../models/socket-message.interface';
 
 /**
  * AbstractChat serves as a base directive for chat-related components, providing common functionality and structure. It can be extended by specific chat implementations to ensure consistency and reuse of shared logic across different chat components.
@@ -16,7 +16,7 @@ export class AbstractChat implements OnInit {
   protected _subs = new Subscription();
 
   public isConnected = signal(false);
-  public messages = signal<SocketMessage[]>([]);
+  public messages = signal<ISocketMessage[]>([]);
   public userName = signal('');
 
   private _destroyRef = inject(DestroyRef);
@@ -50,7 +50,6 @@ export class AbstractChat implements OnInit {
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
         next: (incomingMessage) => {
-          console.log('Received sanitized message:', incomingMessage);
           this.messages.update(prev => [...prev, incomingMessage]);
         }
       })

@@ -1,14 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { ResourceMap } from '../../resources/resource-map';
+import { GameResourceMap } from '../../resources/game-resource-map';
+import { GameCard } from '../../game-card/game-card';
 
 @Component({
   selector: 'app-games',
-  imports: [],
+  imports: [GameCard],
   templateUrl: './games.html',
   styleUrl: './games.scss',
 })
 export class Games implements OnInit {
-  public resourceMap = ResourceMap;
+  public gameResourceMap = GameResourceMap;
 
   ngOnInit(): void { }
+
+
 }

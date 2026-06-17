@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { AbstractChat } from '../../directives/abstract-chat';
 import { ApiService } from '../../services/api.service';
-import { SocketMessage } from '../../models/socket.interface';
+import { ISocketMessage } from '../../models/socket-message.interface';
 
 /**
  * Using console logs to trace component lifecycle and message flow for debugging purposes. Ensuring that all interactions with the ApiService are logged for visibility into connection status and message handling.
@@ -11,13 +11,13 @@ import { SocketMessage } from '../../models/socket.interface';
 
 
 @Component({
-  selector: 'app-websocket-test',
+  selector: 'app-chat',
   imports: [CommonModule],
-  templateUrl: './websocket-test.html',
-  styleUrls: ['./websocket-test.scss'],
+  templateUrl: './chat.html',
+  styleUrls: ['./chat.scss'],
 })
 
-export class WebsocketTest extends AbstractChat implements AfterViewChecked {
+export class Chat extends AbstractChat implements AfterViewChecked {
   private _scrollContainerElement!: ElementRef;
 
   @ViewChild('scrollContainer', { static: false }) set scrollContainer(content: ElementRef) {
@@ -71,7 +71,7 @@ export class WebsocketTest extends AbstractChat implements AfterViewChecked {
     const cleanedText = text.trim();
     if (!cleanedText) return;
 
-    const outgoingMessage: SocketMessage = {
+    const outgoingMessage: ISocketMessage = {
       type: 'chat',
       text: cleanedText,
       userName: this.userName(),
