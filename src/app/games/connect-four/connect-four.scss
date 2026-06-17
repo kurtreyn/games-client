@@ -1,0 +1,108 @@
+/* General layout */
+.board-container {
+  background-color: white;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  min-height: 100vh;
+
+  /* Action buttons */
+  .actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    width: 720px;
+    height: 100px;
+
+    .action {
+      color: darkgray;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 20px;
+      line-height: 20px;
+      font-weight: 300;
+      text-align: center;
+      text-decoration: none;
+      text-transform: uppercase;
+      padding: 20px;
+      width: 120px;
+
+      &:hover {
+        background-color: darkgray;
+        color: white;
+        font-weight: 700;
+      }
+
+      &[href=''] {
+        display: none;
+      }
+    }
+  }
+
+  /* Connect Four board */
+  .board {
+    background-color: blue;
+    display: flex;
+    flex-direction: row;
+    padding: 0 10px;
+    position: relative;
+
+    &::before,
+    &::after {
+      background-color: blue;
+      content: '';
+      height: 100%;
+      width: 20px;
+      position: absolute;
+      top: 0;
+    }
+
+    &::before {
+      left: -20px;
+    }
+
+    &::after {
+      right: -20px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column-reverse;
+      padding: 10px;
+      cursor: pointer;
+
+      &:hover {
+        .cell.empty {
+          background-color: lightgray;
+
+          /* Ensures only the lowest available empty cell highlights if using reverse logic */
+          & ~ .empty {
+            background-color: white;
+          }
+        }
+      }
+    }
+
+    .cell {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      margin: 10px 0;
+      transition: background-color 0.2s ease;
+
+      &.empty {
+        background-color: white;
+      }
+
+      &.red {
+        background-color: red;
+      }
+
+      &.yellow {
+        background-color: yellow;
+      }
+    }
+  }
+}

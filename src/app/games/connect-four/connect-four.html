@@ -1,1 +1,79 @@
-<p>connect-four works!</p>
+<div class="container mt-page">
+  <h1 class="text-center mb-4">Connect Four</h1>
+  <!-- The board container element -->
+
+  <div class="board-container">
+    <!-- The Board -->
+    <div class="board">
+      <!-- Column 0 -->
+      <div class="column" data-column="0">
+        <div class="cell empty" data-column="0"></div>
+        <div class="cell empty" data-column="0"></div>
+        <div class="cell empty" data-column="0"></div>
+        <div class="cell empty" data-column="0"></div>
+        <div class="cell empty" data-column="0"></div>
+        <div class="cell empty" data-column="0"></div>
+      </div>
+      <!-- Column 1 -->
+      <div class="column" data-column="1">
+        <div class="cell empty" data-column="1"></div>
+        <div class="cell empty" data-column="1"></div>
+        <div class="cell empty" data-column="1"></div>
+        <div class="cell empty" data-column="1"></div>
+        <div class="cell empty" data-column="1"></div>
+        <div class="cell empty" data-column="1"></div>
+      </div>
+      <!-- Column 2 -->
+      <div class="column" data-column="2">
+        <div class="cell empty" data-column="2"></div>
+        <div class="cell empty" data-column="2"></div>
+        <div class="cell empty" data-column="2"></div>
+        <div class="cell empty" data-column="2"></div>
+        <div class="cell empty" data-column="2"></div>
+        <div class="cell empty" data-column="2"></div>
+      </div>
+      <!-- Column 3 -->
+      <div class="column" data-column="3">
+        <div class="cell empty" data-column="3"></div>
+        <div class="cell empty" data-column="3"></div>
+        <div class="cell empty" data-column="3"></div>
+        <div class="cell empty" data-column="3"></div>
+        <div class="cell empty" data-column="3"></div>
+        <div class="cell empty" data-column="3"></div>
+      </div>
+      <!-- Column 4 -->
+      <div class="column" data-column="4">
+        <div class="cell empty" data-column="4"></div>
+        <div class="cell empty" data-column="4"></div>
+        <div class="cell empty" data-column="4"></div>
+        <div class="cell empty" data-column="4"></div>
+        <div class="cell empty" data-column="4"></div>
+        <div class="cell empty" data-column="4"></div>
+      </div>
+      <!-- Column 5 -->
+      <div class="column" data-column="5">
+        <div class="cell empty" data-column="5"></div>
+        <div class="cell empty" data-column="5"></div>
+        <div class="cell empty" data-column="5"></div>
+        <div class="cell empty" data-column="5"></div>
+        <div class="cell empty" data-column="5"></div>
+        <div class="cell empty" data-column="5"></div>
+      </div>
+      <!-- Column 6 -->
+      <div class="column" data-column="6">
+        <div class="cell empty" data-column="6"></div>
+        <div class="cell empty" data-column="6"></div>
+        <div class="cell empty" data-column="6"></div>
+        <div class="cell empty" data-column="6"></div>
+        <div class="cell empty" data-column="6"></div>
+        <div class="cell empty" data-column="6"></div>
+      </div>
+    </div>
+
+    <!-- Actions Panel (Positions above the board due to flex-direction: column-reverse) -->
+    <div class="actions">
+      <button class="action">Reset</button>
+      <button class="action">Rules</button>
+    </div>
+  </div>
+</div>
