@@ -1,0 +1,77 @@
+// Minimalist matching SCSS for the invite link box
+.game-invite-link-container {
+  background-color: #f5f5f5; // Matching light grey background
+  border: 1px solid #dcdcdc; // Matching thin, light border
+  border-radius: 4px; // Minimalist corner radius
+  padding: 1rem; // Adequate spacing
+  max-width: 380px; // A bit narrower for a clean look
+  margin: 1.5rem auto; // Centered with margin
+  font-family: Arial, sans-serif; // Standard minimalist font
+  text-align: center;
+  box-shadow: none; // No shadows for flat design
+  transition: border-color 0.1s ease; // Subtle focus effect
+
+  .invite-link-label {
+    color: #808080; // Matching grey text
+    font-size: 0.85rem; // Smaller text
+    font-weight: normal; // Not bold
+    margin: 0 0 0.8rem; // Tight margin
+    text-transform: none; // Normal case
+    letter-spacing: normal;
+  }
+
+  .invite-link-box {
+    display: flex;
+    gap: 0; // Seamless feel
+    background-color: #ffffff; // White input background
+    border: 1px solid #dcdcdc; // Border for input area
+    border-radius: 2px; // Sharp inner corners
+    overflow: hidden; // Clean look
+
+    &:focus-within {
+      border-color: #808080; // Darker border on focus
+    }
+  }
+
+  .invite-link-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #808080; // Standard grey font
+    font-family: Arial, sans-serif;
+    font-size: 0.8rem;
+    font-weight: normal;
+    padding: 0.4rem 0.6rem;
+    cursor: default; // Indicates it's not a direct edit
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .copy-button {
+    background: #f5f5f5; // Button matches container background
+    color: #808080; // Text is same grey
+    border: 1px solid #dcdcdc; // Border like input and container
+    border-radius: 0; // Right side of input, so square
+    padding: 0.4rem 0.8rem;
+    font-weight: normal;
+    font-size: 0.8rem;
+    text-transform: uppercase; // Small caps for minimalist feel
+    cursor: pointer;
+    box-shadow: none; // No shadow
+    transition: all 0.1s ease;
+
+    &:hover {
+      background: darken(#f5f5f5, 2%); // Subtle hover shade
+      border-color: #808080;
+    }
+
+    &:active {
+      background: darken(#f5f5f5, 5%); // Subtle click effect
+    }
+  }
+}

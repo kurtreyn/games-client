@@ -3,11 +3,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ConnectFourApi } from '../../services/connect-four-api';
 import { ConnectFourCellState, EventEnum } from '../../enums/game.enum';
-
+import { ActiveUsersBadge } from '../../active-users-badge/active-users-badge'
+import { GameInviteLinkContainer } from '../../game-invite-link-container/game-invite-link-container';
 
 @Component({
   selector: 'app-connect-four',
-  imports: [],
+  imports: [ActiveUsersBadge, GameInviteLinkContainer],
   templateUrl: './connect-four.html',
   styleUrl: './connect-four.scss',
 })
@@ -17,12 +18,15 @@ export class ConnectFour implements OnInit {
   private _subs = new Subscription();
 
   public board: ConnectFourCellState[][] = [];
+  public activeUsersCount = this._connectFourApi.activeUsersCount;
+  public badgeLabel = 'Players in Game';
+  public inviteLink: string = window.location.href;
 
-  readonly totalColumns = 7;
-  readonly totalRows = 6;
+  public readonly totalColumns = 7;
+  public readonly totalRows = 6;
 
   ngOnInit(): void {
-    this.resetBoard();
+    this._resetBoard();
     this._connectToGameServer();
   }
 
@@ -46,11 +50,17 @@ export class ConnectFour implements OnInit {
     });
   }
 
-  public resetBoard(): void {
+  public startGame() {
+    console.log('Start Game button clicked');
+    this._connectFourApi.sendGameState({ type: EventEnum.INIT });
+  }
+
+  private _resetBoard(): void {
     this.board = Array.from({ length: this.totalColumns }, () =>
       Array(this.totalRows).fill(ConnectFourCellState.EMPTY)
     );
   }
+
 
   // Example event handler for when a user clicks a column
   public playMove(columnIndex: number): void {

@@ -3,6 +3,14 @@
 
   <!-- The board container element -->
   <div class="board-container">
+    @if (activeUsersCount() > 0) {
+      <app-active-users-badge [label]="badgeLabel" [activeUsersCount]="activeUsersCount()" />
+
+      <app-game-invite-link-container [inviteLink]="inviteLink" />
+    } @else {
+      <span>Click START to begin the game</span>
+    }
+
     <!-- The Board -->
     <div class="board">
       <!-- Loop through each column (outer array) -->
@@ -23,8 +31,7 @@
     </div>
     <!-- Actions Panel  -->
     <div class="actions">
-      <button class="action" (click)="resetBoard()">Reset</button>
-      <button class="action">Rules</button>
+      <button class="action" (click)="startGame()">Start</button>
     </div>
     <!-- END CONTAINER -->
   </div>

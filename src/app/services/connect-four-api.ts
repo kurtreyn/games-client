@@ -66,9 +66,9 @@ export class ConnectFourApi {
                     const rawData = JSON.parse(event.data);
                     console.log('Raw message received from server:', rawData);
 
-                    if (rawData.type === 'user_count') {
-                        this.activeUsersCount.set(rawData.count || 0);
-                        return; // No need to emit a SocketMessage for user count updates
+                    if (rawData.type === 'init' || rawData.type === 'join') {
+                        this.activeUsersCount.set(rawData.player_count || 0);
+
                     }
 
                     const incomingState: any = {

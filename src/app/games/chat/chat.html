@@ -1,7 +1,7 @@
 <div class="container max-width-md mt-5">
-  <span class="badge badge-override orange-bg">
-    👥 Active Users: {{ _apiService.activeUsersCount() }}
-  </span>
+  <app-active-users-badge
+    [activeUsersCount]="_apiService.activeUsersCount()"
+  ></app-active-users-badge>
 
   <div class="card shadow-sm">
     <div

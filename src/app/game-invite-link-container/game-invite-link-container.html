@@ -1,0 +1,13 @@
+<div class="game-invite-link-container">
+  <p class="invite-link-label">Share this link to invite a friend:</p>
+  <div class="invite-link-box">
+    <input
+      type="text"
+      class="invite-link-input"
+      [value]="inviteLink"
+      readonly
+      (click)="copyInviteLink()"
+    />
+    <button class="copy-button" (click)="copyInviteLink()">Copy</button>
+  </div>
+</div>
