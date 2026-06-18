@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef, input, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ConnectFourApi } from '../../services/connect-four-api';
@@ -22,11 +22,25 @@ export class ConnectFour implements OnInit {
   public activeUsersCount = this._connectFourApi.activeUsersCount;
   public badgeLabel = 'Players in Game';
   public inviteLink: string = window.location.href;
+  public joinKey = input<string | null>(null, { alias: 'join' });
 
   public readonly totalColumns = 7;
   public readonly totalRows = 6;
 
+  constructor() {
+    effect(() => {
+      const joinValue = this.joinKey();
+      console.log('Join key from URL parameters:', joinValue);
+    });
+  }
+
   ngOnInit(): void {
+    // effect(() => {
+    //   const joinValue = this.joinKey();
+    //   console.log('Join key from URL parameters:', joinValue);
+    // });
+
+
     this._resetBoard();
     this._connectToGameServer();
     this._subscribeToGameState();
@@ -39,6 +53,15 @@ export class ConnectFour implements OnInit {
       ).subscribe({
         next: (connected) => {
           console.log('Connect Four connection status:', connected);
+          if (connected) {
+            const key = this.joinKey();
+            if (key) {
+              console.log('Joining existing game with key:', key);
+              this._connectFourApi.sendGameState({ type: EventEnum.JOIN, join: key });
+            } else {
+              console.log('No join key provided, waiting for a player to start a new game.');
+            }
+          }
         },
         error: (error) => {
           console.error('Error connecting to Connect Four server:', error);
@@ -72,6 +95,10 @@ export class ConnectFour implements OnInit {
         }
       })
     );
+  }
+
+  private _getUrlParams(): URLSearchParams {
+    return new URLSearchParams(window.location.search);
   }
 
 

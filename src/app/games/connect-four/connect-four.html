@@ -3,7 +3,7 @@
 
   <!-- The board container element -->
   <div class="board-container">
-    @if (activeUsersCount() > 0) {
+    @if (activeUsersCount() > 0 || joinKey()) {
       <app-active-users-badge [label]="badgeLabel" [activeUsersCount]="activeUsersCount()" />
 
       <app-game-invite-link-container [inviteLink]="inviteLink" />
@@ -30,7 +30,7 @@
       }
     </div>
     <!-- Actions Panel  -->
-    @if (activeUsersCount() === 0) {
+    @if (activeUsersCount() === 0 && !joinKey()) {
       <div class="actions">
         <button class="action" (click)="startGame()">Start</button>
       </div>

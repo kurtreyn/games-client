@@ -66,7 +66,7 @@ export class ConnectFourApi {
                     const rawData = JSON.parse(event.data);
                     console.log('Raw message received from server:', rawData);
 
-                    if (rawData.type === 'init' || rawData.type === 'join') {
+                    if (rawData.type === 'init' || rawData.type === 'player_joined') {
                         this.activeUsersCount.set(rawData.player_count || 0);
                     }
 
