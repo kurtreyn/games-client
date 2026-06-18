@@ -2,6 +2,7 @@ import { Injectable, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { ISocketMessage } from '../models/socket-message.interface';
+import { environment } from '../config/config';
 
 /**
  * Using console logs to trace component lifecycle and message flow for debugging purposes. Ensuring that all interactions with the ApiService are logged for visibility into connection status and message handling.
@@ -11,25 +12,21 @@ import { ISocketMessage } from '../models/socket-message.interface';
     providedIn: 'root'
 })
 export class ConnectFourApi {
-    private _socketPort = 8001;
-    private _localHost = 'ws://localhost:';
-    private _productionHost = 'wss://games-socket-server.onrender.com';
-    private _endpoint = '/connect-four';
     private _socket: WebSocket | null = null;
-    private _useProduction = false; // Toggle for production vs local
     private _isConnected$ = new BehaviorSubject<boolean>(false);
 
     // A Subject to multi-cast incoming messages to the component
-    private _message$ = new Subject<ISocketMessage>();
+    private _gameState$ = new Subject<any>();
 
     public isConnectedSignal: Signal<boolean> = toSignal(this._isConnected$, { requireSync: true });
-    public activeUsersCount = signal<number>(0); // Default to 0 for initial state
+
+    public activeUsersCount = signal<number>(0);
 
     constructor() { }
 
     private _buildUrl(): string {
-        const baseUrl = this._useProduction ? this._productionHost : `${this._localHost}${this._socketPort}`;
-        return `${baseUrl}${this._endpoint}`;
+        const baseUrl = environment.production ? environment.production_api_url : environment.local_api_url;
+        return `${baseUrl}${environment.connect_four_endpoint}`;
     }
 
     /**
@@ -74,14 +71,14 @@ export class ConnectFourApi {
                         return; // No need to emit a SocketMessage for user count updates
                     }
 
-                    const incomingMessage: ISocketMessage = {
+                    const incomingState: any = {
                         type: rawData.type,
                         text: rawData.text,
                         userName: rawData.userName,
-                        timeStamp: new Date(rawData.timeStamp) // ISO to Date conversion
+                        timeStamp: new Date(rawData.timeStamp)
                     };
 
-                    this._message$.next(incomingMessage);
+                    this._gameState$.next(incomingState);
                 } catch (error) {
                     console.error('Parsing error', error);
                 }
@@ -94,19 +91,19 @@ export class ConnectFourApi {
     }
 
     /**
-     * Exposes the message stream to the component
+     * Exposes the game state stream to the component
      */
-    public getMessages(): Observable<ISocketMessage> {
-        return this._message$.asObservable();
+    public getGameState(): Observable<any> {
+        return this._gameState$.asObservable();
     }
 
     /**
      * Handles sending data to the open socket
      */
-    public sendMessage(message: ISocketMessage): boolean {
+    public sendGameState(state: any): boolean {
         if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-            this._socket.send(JSON.stringify(message));
-            console.log('Sent to server:', message);
+            this._socket.send(JSON.stringify(state));
+            console.log('Sent to server:', state);
             return true;
         }
         console.warn('Cannot send message, socket is not open.');

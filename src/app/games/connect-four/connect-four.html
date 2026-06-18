@@ -1,4 +1,4 @@
-<div class="container mt-page">
+<div class="container mt-2">
   <h1 class="text-center mb-4">Connect Four</h1>
 
   <!-- The board container element -->
@@ -7,7 +7,7 @@
     <div class="board">
       <!-- Loop through each column (outer array) -->
       @for (column of board; track colIndex; let colIndex = $index) {
-        <div class="column" [attr.data-column]="colIndex" (click)="handleColumnClick(colIndex)">
+        <div class="column" [attr.data-column]="colIndex" (click)="playMove(colIndex)">
           <!-- Loop through each cell in the column (inner array) -->
           @for (cellState of column; track rowIndex; let rowIndex = $index) {
             <div

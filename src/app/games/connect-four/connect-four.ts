@@ -2,8 +2,8 @@ import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ConnectFourApi } from '../../services/connect-four-api';
+import { ConnectFourCellState, EventEnum } from '../../enums/game.enum';
 
-export type CellState = 'empty' | 'red' | 'yellow';
 
 @Component({
   selector: 'app-connect-four',
@@ -16,7 +16,7 @@ export class ConnectFour implements OnInit {
   private _destroyRef = inject(DestroyRef);
   private _subs = new Subscription();
 
-  board: CellState[][] = [];
+  public board: ConnectFourCellState[][] = [];
 
   readonly totalColumns = 7;
   readonly totalRows = 6;
@@ -48,14 +48,14 @@ export class ConnectFour implements OnInit {
 
   public resetBoard(): void {
     this.board = Array.from({ length: this.totalColumns }, () =>
-      Array(this.totalRows).fill('empty')
+      Array(this.totalRows).fill(ConnectFourCellState.EMPTY)
     );
   }
 
   // Example event handler for when a user clicks a column
-  public handleColumnClick(columnIndex: number): void {
+  public playMove(columnIndex: number): void {
     console.log(`Column ${columnIndex} clicked`);
-    // Your move logic goes here...
+    this._connectFourApi.sendGameState({ type: EventEnum.MOVE, column: columnIndex });
   }
 
 
