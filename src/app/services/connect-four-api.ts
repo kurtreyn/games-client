@@ -1,7 +1,7 @@
 import { Injectable, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
-import { ISocketMessage } from '../models/socket-message.interface';
+import { IConnectFourInitGameState } from '../models/connect-four.interface';
 import { environment } from '../config/config';
 
 /**
@@ -68,7 +68,6 @@ export class ConnectFourApi {
 
                     if (rawData.type === 'init' || rawData.type === 'join') {
                         this.activeUsersCount.set(rawData.player_count || 0);
-
                     }
 
                     const incomingState: any = {
@@ -78,7 +77,7 @@ export class ConnectFourApi {
                         timeStamp: new Date(rawData.timeStamp)
                     };
 
-                    this._gameState$.next(incomingState);
+                    this._gameState$.next(rawData);
                 } catch (error) {
                     console.error('Parsing error', error);
                 }

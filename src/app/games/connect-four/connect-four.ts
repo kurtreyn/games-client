@@ -5,6 +5,7 @@ import { ConnectFourApi } from '../../services/connect-four-api';
 import { ConnectFourCellState, EventEnum } from '../../enums/game.enum';
 import { ActiveUsersBadge } from '../../active-users-badge/active-users-badge'
 import { GameInviteLinkContainer } from '../../game-invite-link-container/game-invite-link-container';
+import { IConnectFourInitGameState } from '../../models/connect-four.interface';
 
 @Component({
   selector: 'app-connect-four',
@@ -28,6 +29,7 @@ export class ConnectFour implements OnInit {
   ngOnInit(): void {
     this._resetBoard();
     this._connectToGameServer();
+    this._subscribeToGameState();
   }
 
   private _connectToGameServer(): void {
@@ -49,6 +51,30 @@ export class ConnectFour implements OnInit {
       this._subs.unsubscribe();
     });
   }
+
+  private _subscribeToGameState(): void {
+    this._subs.add(
+      this._connectFourApi.getGameState().pipe(
+        takeUntilDestroyed(this._destroyRef)
+      ).subscribe({
+        next: (gameState) => {
+          console.log('Received game state update:', gameState);
+          if (gameState.type === 'init') {
+            this.inviteLink = `${window.location.origin}${window.location.pathname}?join=${gameState.join}`;
+          }
+          // Update the board state based on the received game state
+          if (gameState.board) {
+            this.board = gameState.board;
+          }
+        },
+        error: (error) => {
+          console.error('Error receiving game state updates:', error);
+        }
+      })
+    );
+  }
+
+
 
   public startGame() {
     console.log('Start Game button clicked');
