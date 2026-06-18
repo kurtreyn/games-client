@@ -1,13 +1,22 @@
 <div class="container mt-2">
   <h1 class="text-center mb-4">Connect Four</h1>
 
+  @if (!isConnected()) {
+    <app-notifications></app-notifications>
+  }
+
   <!-- The board container element -->
   <div class="board-container">
-    @if (activeUsersCount() > 0 || joinKey()) {
-      <app-active-users-badge [label]="badgeLabel" [activeUsersCount]="activeUsersCount()" />
-      <app-game-invite-link-container [inviteLink]="inviteLink" />
-    } @else {
-      <span>Click START to begin the game</span>
+    @if (isConnected()) {
+      @if (activeUsersCount() > 0 || joinKey()) {
+        <app-active-users-badge [label]="badgeLabel" [activeUsersCount]="activeUsersCount()" />
+      }
+      @if (showInviteLink()) {
+        <app-game-invite-link-container [inviteLink]="inviteLink" />
+      }
+      @if (showInstructions()) {
+        <span>{{ instructionText }}</span>
+      }
     }
 
     <!-- The Board -->

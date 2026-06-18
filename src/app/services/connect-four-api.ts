@@ -2,6 +2,7 @@ import { Injectable, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { IConnectFourInitGameState } from '../models/connect-four.interface';
+import { EventEnum } from '../enums/game.enum';
 import { environment } from '../config/config';
 
 /**
@@ -14,12 +15,10 @@ import { environment } from '../config/config';
 export class ConnectFourApi {
     private _socket: WebSocket | null = null;
     private _isConnected$ = new BehaviorSubject<boolean>(false);
-
     // A Subject to multi-cast incoming messages to the component
     private _gameState$ = new Subject<any>();
 
     public isConnectedSignal: Signal<boolean> = toSignal(this._isConnected$, { requireSync: true });
-
     public activeUsersCount = signal<number>(0);
 
     constructor() { }
@@ -66,16 +65,9 @@ export class ConnectFourApi {
                     const rawData = JSON.parse(event.data);
                     console.log('Raw message received from server:', rawData);
 
-                    if (rawData.type === 'init' || rawData.type === 'player_joined') {
+                    if (rawData.type === EventEnum.INIT || rawData.type === EventEnum.PLAYER_JOINED) {
                         this.activeUsersCount.set(rawData.player_count || 0);
                     }
-
-                    const incomingState: any = {
-                        type: rawData.type,
-                        text: rawData.text,
-                        userName: rawData.userName,
-                        timeStamp: new Date(rawData.timeStamp)
-                    };
 
                     this._gameState$.next(rawData);
                 } catch (error) {
@@ -99,14 +91,13 @@ export class ConnectFourApi {
     /**
      * Handles sending data to the open socket
      */
-    public sendGameState(state: any): boolean {
+    public sendGameState(state: any): void {
         if (this._socket && this._socket.readyState === WebSocket.OPEN) {
             this._socket.send(JSON.stringify(state));
             console.log('Sent to server:', state);
-            return true;
+            return;
         }
         console.warn('Cannot send message, socket is not open.');
-        return false;
     }
 
     /**

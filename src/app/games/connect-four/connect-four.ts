@@ -1,4 +1,13 @@
-import { Component, inject, OnInit, DestroyRef, input, effect, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  DestroyRef,
+  input,
+  effect,
+  ChangeDetectorRef,
+  signal
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -6,11 +15,12 @@ import { ConnectFourApi } from '../../services/connect-four-api';
 import { ConnectFourCellState, EventEnum } from '../../enums/game.enum';
 import { ActiveUsersBadge } from '../../active-users-badge/active-users-badge'
 import { GameInviteLinkContainer } from '../../game-invite-link-container/game-invite-link-container';
+import { Notifications } from '../../notifications/notifications';
 import { IConnectFourInitGameState } from '../../models/connect-four.interface';
 
 @Component({
   selector: 'app-connect-four',
-  imports: [ActiveUsersBadge, GameInviteLinkContainer],
+  imports: [ActiveUsersBadge, GameInviteLinkContainer, Notifications],
   templateUrl: './connect-four.html',
   styleUrl: './connect-four.scss',
 })
@@ -21,11 +31,16 @@ export class ConnectFour implements OnInit {
   private _destroyRef = inject(DestroyRef);
   private _subs = new Subscription();
 
+  public isConnected = this._connectFourApi.isConnectedSignal;
   public board: ConnectFourCellState[][] = [];
   public activeUsersCount = this._connectFourApi.activeUsersCount;
-  public badgeLabel = 'Players in Game';
+  public showInviteLink = signal(false);
+  public showInstructions = signal(true);
   public inviteLink: string = window.location.href;
   public joinKey = input<string | null>(null, { alias: 'join' });
+
+  public readonly badgeLabel = 'Players in Game';
+  public readonly instructionText = 'Click START to begin a new game'
 
   public readonly totalColumns = 7;
   public readonly totalRows = 6;
@@ -48,15 +63,13 @@ export class ConnectFour implements OnInit {
       this._connectFourApi.connectToServer().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
-        next: (connected) => {
-          console.log('Connect Four connection status:', connected);
-          if (connected) {
+        next: (isConnected) => {
+          console.log('Connect Four connection status:', isConnected);
+          if (isConnected) {
             const key = this.joinKey();
             if (key) {
               console.log('Joining existing game with key:', key);
-              this._connectFourApi.sendGameState({ type: EventEnum.JOIN, join: key });
-            } else {
-              console.log('No join key provided, waiting for a player to start a new game.');
+              this._connectFourApi.sendGameState({ type: EventEnum.INIT, join: key });
             }
           }
         },
@@ -82,10 +95,17 @@ export class ConnectFour implements OnInit {
 
           switch (gameState.type) {
             case EventEnum.INIT:
-              this.inviteLink = `${window.location.origin}${window.location.pathname}?join=${gameState.join}`;
+              const joinLink = gameState.join
+              if (joinLink) {
+                this.inviteLink = `${window.location.origin}${window.location.pathname}?join=${gameState.join}`;
+              }
+              this.showInviteLink.set(!!joinLink);
+              this.showInstructions.set(!joinLink);
               break;
             case EventEnum.PLAYER_JOINED:
               this._toastr.success(`A new player has joined the game!`);
+              this.showInviteLink.set(false);
+              this.showInstructions.set(false);
               break;
             case EventEnum.MOVE:
               this._updateBoard(gameState);
