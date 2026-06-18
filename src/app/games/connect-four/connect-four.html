@@ -5,7 +5,6 @@
   <div class="board-container">
     @if (activeUsersCount() > 0 || joinKey()) {
       <app-active-users-badge [label]="badgeLabel" [activeUsersCount]="activeUsersCount()" />
-
       <app-game-invite-link-container [inviteLink]="inviteLink" />
     } @else {
       <span>Click START to begin the game</span>
@@ -17,7 +16,7 @@
       @for (column of board; track colIndex; let colIndex = $index) {
         <div class="column" [attr.data-column]="colIndex" (click)="playMove(colIndex)">
           <!-- Loop through each cell in the column (inner array) -->
-          @for (cellState of column; track rowIndex; let rowIndex = $index) {
+          @for (cellState of column; track rowIndex + '-' + cellState; let rowIndex = $index) {
             <div
               class="cell"
               [attr.data-column]="colIndex"

@@ -4,7 +4,11 @@ export enum EventEnum {
     MOVE = 'move',
     WIN = 'win',
     ERROR = 'error',
-    RESET = 'reset'
+    RESET = 'reset',
+    PLAYER_JOINED = 'player_joined',
+    PLAYER = 'player',
+    COLUMN = 'column',
+    ROW = 'row',
 }
 
 
