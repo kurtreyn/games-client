@@ -1,0 +1,117 @@
+/* Outer wrapper centering the game interface on screen */
+.board-container {
+  background-color: white;
+  display: flex;
+  flex-direction: column; /* Changed to regular column layout */
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  min-height: 100vh;
+  gap: 20px; /* Provides consistent spacing between header, buttons, and board */
+
+  /* Actions Panel: Placed nicely relative to the game grid width */
+  .actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    max-width: 720px; /* Constrains actions size to match the game layout */
+    height: auto;
+    margin-bottom: 10px;
+
+    .action {
+      background: none;
+      border: 1px solid darkgray;
+      border-radius: 4px;
+      color: darkgray;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 20px;
+      line-height: 20px;
+      font-weight: 300;
+      text-align: center;
+      text-transform: uppercase;
+      padding: 15px 20px;
+      width: 120px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        background-color: darkgray;
+        color: white;
+        font-weight: 700;
+      }
+    }
+  }
+
+  /* Connect Four board */
+  .board {
+    background-color: blue;
+    display: flex;
+    flex-direction: row;
+    padding: 0 10px;
+    position: relative;
+    width: max-content; /* Prevents the board container from stretching infinitely wide */
+
+    /* Classic structural side flaps */
+    &::before,
+    &::after {
+      background-color: blue;
+      content: '';
+      height: 100%;
+      width: 20px;
+      position: absolute;
+      top: 0;
+    }
+
+    &::before {
+      left: -20px;
+    }
+
+    &::after {
+      right: -20px;
+    }
+
+    /* Vertical grid structures */
+    .column {
+      display: flex;
+      flex-direction: column-reverse; /* Keeps column stack flowing from bottom up */
+      padding: 0 10px; /* Balanced left/right spacing inside columns */
+      cursor: pointer;
+
+      /* Hover highlight logic */
+      &:hover {
+        .cell.empty {
+          background-color: lightgray;
+
+          /* Forces lower empty slots to take target visual preference */
+          & ~ .empty {
+            background-color: white;
+          }
+        }
+      }
+    }
+
+    /* Board holes */
+    .cell {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      margin: 10px 0; /* Clean vertical spacing between circles */
+      background-color: white; /* Default fallback color */
+      transition: background-color 0.2s ease;
+
+      &.empty {
+        background-color: white;
+      }
+
+      &.red {
+        background-color: red;
+      }
+
+      &.yellow {
+        background-color: yellow;
+      }
+    }
+  }
+}

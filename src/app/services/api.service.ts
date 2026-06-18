@@ -2,6 +2,7 @@ import { Injectable, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { ISocketMessage } from '../models/socket-message.interface';
+import { environment } from '../config/config';
 
 /**
  * Using console logs to trace component lifecycle and message flow for debugging purposes. Ensuring that all interactions with the ApiService are logged for visibility into connection status and message handling.
@@ -11,11 +12,7 @@ import { ISocketMessage } from '../models/socket-message.interface';
   providedIn: 'root'
 })
 export class ApiService {
-  private _socketPort = 8001;
-  private _localHost = 'ws://localhost:';
-  private _productionHost = 'wss://games-socket-server.onrender.com';
   private _socket: WebSocket | null = null;
-  private _useProduction = true; // Toggle for production vs local
   private _isConnected$ = new BehaviorSubject<boolean>(false);
 
   // A Subject to multi-cast incoming messages to the component
@@ -26,11 +23,16 @@ export class ApiService {
 
   constructor() { }
 
+  private _buildUrl(): string {
+    const baseUrl = environment.production ? environment.production_api_url : environment.local_api_url;
+    return `${baseUrl}${environment.chat_endpoint}`;
+  }
+
   /**
    * Initializes connection and returns an Observable tracking connection status.
    */
   public connectToServer(): Observable<boolean> {
-    this._socket = new WebSocket(this._useProduction ? this._productionHost : `${this._localHost}${this._socketPort}`);
+    this._socket = new WebSocket(this._buildUrl());
 
     return new Observable<boolean>(observer => {
       if (!this._socket) return;

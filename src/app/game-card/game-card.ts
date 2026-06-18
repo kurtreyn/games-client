@@ -1,5 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { IResourceMap } from '../models/resource-map.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-game-card',
@@ -8,10 +10,31 @@ import { IResourceMap } from '../models/resource-map.interface';
   styleUrl: './game-card.scss',
 })
 export class GameCard {
+  private _toastr = inject(ToastrService);
+  private _router = inject(Router);
+
   @Input({ required: true }) public gameResourceMap!: IResourceMap;
 
   public onPlayNow(id: string) {
-    // Placeholder for play now action, e.g., navigate to game page or open game modal
-    alert('This feature is not available yet.');
+
+    switch (id) {
+      case 'rummy':
+        this._toastr.warning(`This game is not available yet.`);
+        break;
+      case 'connect_four':
+        const route = this.gameResourceMap.link;
+        if (route) {
+          this._router.navigateByUrl(route);
+        } else {
+          this._toastr.error(`Route for Connect Four not found.`);
+        }
+        break;
+      case 'chess':
+        this._toastr.warning(`This game is not available yet.`);
+        break;
+      default:
+        this._toastr.error(`Unknown game ID: ${id}`);
+    }
+
   }
 }

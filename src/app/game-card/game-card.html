@@ -1,10 +1,12 @@
 <div class="card card-custom" [attr.id]="gameResourceMap.id">
   <!-- Card Image Header -->
-  <img
-    [src]="gameResourceMap.image_path"
-    class="card-img-top"
-    alt="{{ gameResourceMap.title }} Preview"
-  />
+  <div class="card-image-wrapper">
+    <img
+      [src]="gameResourceMap.image_path"
+      class="card-img-top custom-card-img"
+      alt="{{ gameResourceMap.title }} Preview"
+    />
+  </div>
 
   <!-- Card Content Body -->
   <div class="card-body">

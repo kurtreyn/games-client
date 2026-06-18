@@ -7,5 +7,12 @@ export const GameResourceMap: IResourceMap[] = [
         title: 'Rummy',
         description: 'A classic card game where players aim to form sets and runs of cards to win.',
         link: '/games/rummy',
-    }
+    },
+    {
+        id: 'connect_four',
+        image_path: 'images/connect_four.png',
+        title: 'Connect Four',
+        description: 'A two-player connection game where the goal is to connect four of your pieces in a row.',
+        link: '/games/connect-four',
+    },
 ]

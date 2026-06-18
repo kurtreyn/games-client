@@ -1,0 +1,31 @@
+<div class="container mt-2">
+  <h1 class="text-center mb-4">Connect Four</h1>
+
+  <!-- The board container element -->
+  <div class="board-container">
+    <!-- The Board -->
+    <div class="board">
+      <!-- Loop through each column (outer array) -->
+      @for (column of board; track colIndex; let colIndex = $index) {
+        <div class="column" [attr.data-column]="colIndex" (click)="playMove(colIndex)">
+          <!-- Loop through each cell in the column (inner array) -->
+          @for (cellState of column; track rowIndex; let rowIndex = $index) {
+            <div
+              class="cell"
+              [attr.data-column]="colIndex"
+              [class.empty]="cellState === 'empty'"
+              [class.red]="cellState === 'red'"
+              [class.yellow]="cellState === 'yellow'"
+            ></div>
+          }
+        </div>
+      }
+    </div>
+    <!-- Actions Panel  -->
+    <div class="actions">
+      <button class="action" (click)="resetBoard()">Reset</button>
+      <button class="action">Rules</button>
+    </div>
+    <!-- END CONTAINER -->
+  </div>
+</div>
