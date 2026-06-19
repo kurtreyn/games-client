@@ -1,29 +1,80 @@
-import { Component, inject, OnInit, DestroyRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  DestroyRef,
+  input,
+  effect,
+  ChangeDetectorRef,
+  signal,
+  computed
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { ConnectFourApi } from '../../services/connect-four-api';
 import { ConnectFourCellState, EventEnum } from '../../enums/game.enum';
-
+import { ActiveUsersBadge } from '../../active-users-badge/active-users-badge'
+import { GameInviteLinkContainer } from '../../game-invite-link-container/game-invite-link-container';
+import { Notifications } from '../../notifications/notifications';
+import { IConnectFourInitGameState } from '../../models/connect-four.interface';
 
 @Component({
   selector: 'app-connect-four',
-  imports: [],
+  imports: [ActiveUsersBadge, GameInviteLinkContainer, Notifications],
   templateUrl: './connect-four.html',
   styleUrl: './connect-four.scss',
 })
 export class ConnectFour implements OnInit {
+  private _cdr = inject(ChangeDetectorRef);
   private _connectFourApi = inject(ConnectFourApi);
+  private _toastr = inject(ToastrService);
   private _destroyRef = inject(DestroyRef);
   private _subs = new Subscription();
+  private _winner = signal<string | null>(null);
 
+  public isConnected = this._connectFourApi.isConnectedSignal;
   public board: ConnectFourCellState[][] = [];
+  public activeUsersCount = this._connectFourApi.activeUsersCount;
+  public showInviteLink = signal(false);
+  public showInstructions = signal(true);
+  public showActionButton = computed(() => {
+    const count = this.activeUsersCount();
+    const hasJoinKey = !!this.joinKey();
+    const hasWinner = !!this._winner();
+    return (count === 0 && !hasJoinKey) || hasWinner;
+  });
+  public inviteLink: string = window.location.href;
+  public buttonActionText = computed<'Start' | 'Play Again'>(() => {
+    return this._winner() ? 'Play Again' : 'Start';
+  });
+  public joinKey = input<string | null>(null, { alias: 'join' });
+  public playerColor = computed(() => {
+    const joinKey = this.joinKey();
+    if (!joinKey) {
+      return 'red';
+    } else {
+      return 'yellow';
+    }
+  });
 
-  readonly totalColumns = 7;
-  readonly totalRows = 6;
+  public readonly badgeLabel = 'Players in Game';
+  public readonly instructionText = 'Click START to begin a new game'
+
+  public readonly totalColumns = 7;
+  public readonly totalRows = 6;
+
+  constructor() {
+    effect(() => {
+      const joinValue = this.joinKey();
+      console.log('Join key from URL parameters:', joinValue);
+    });
+  }
 
   ngOnInit(): void {
-    this.resetBoard();
+    this._resetBoard();
     this._connectToGameServer();
+    this._subscribeToGameState();
   }
 
   private _connectToGameServer(): void {
@@ -31,8 +82,15 @@ export class ConnectFour implements OnInit {
       this._connectFourApi.connectToServer().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
-        next: (connected) => {
-          console.log('Connect Four connection status:', connected);
+        next: (isConnected: boolean) => {
+          console.log('Connect Four connection status:', isConnected);
+          if (isConnected) {
+            const key = this.joinKey();
+            if (key) {
+              console.log('Joining existing game with key:', key);
+              this._connectFourApi.sendGameState({ type: EventEnum.INIT, join: key });
+            }
+          }
         },
         error: (error) => {
           console.error('Error connecting to Connect Four server:', error);
@@ -46,131 +104,108 @@ export class ConnectFour implements OnInit {
     });
   }
 
-  public resetBoard(): void {
-    this.board = Array.from({ length: this.totalColumns }, () =>
-      Array(this.totalRows).fill(ConnectFourCellState.EMPTY)
+  private _subscribeToGameState(): void {
+    this._subs.add(
+      this._connectFourApi.getGameState().pipe(
+        takeUntilDestroyed(this._destroyRef)
+      ).subscribe({
+        next: (gameState: IConnectFourInitGameState) => {
+          console.log('Received game state update:', gameState);
+
+          switch (gameState.type) {
+            case EventEnum.INIT:
+              const joinLink = gameState.join
+              if (joinLink) {
+                this.inviteLink = `${window.location.origin}${window.location.pathname}?join=${gameState.join}`;
+              }
+              this.showInviteLink.set(!!joinLink);
+              this.showInstructions.set(!joinLink);
+              console.log('JOIN KEY: ', this.joinKey());
+              break;
+            case EventEnum.PLAYER_JOINED:
+              this._toastr.success(`A new player has joined the game. You can start playing.`);
+              this.showInviteLink.set(false);
+              this.showInstructions.set(false);
+              console.log('JOIN KEY: ', this.joinKey());
+              break;
+            case EventEnum.MOVE:
+              this._updateBoard(gameState);
+              this._cdr.markForCheck();
+              break;
+            case EventEnum.WIN:
+              this._winner.set(gameState.player || null);
+              this._toastr.success(`${gameState.player} wins!`);
+              break;
+            case EventEnum.RESET:
+              this._resetBoard();
+              this._toastr.info(`New game started!`);
+              break;
+            case EventEnum.ERROR:
+              this._toastr.error(gameState.text || 'An error occurred in the game.');
+              break;
+            default:
+              console.warn('Something went wrong', gameState.type);
+          }
+
+
+
+          // Update the board state based on the received game state
+          if (gameState.board) {
+            this.board = gameState.board;
+          }
+        },
+        error: (error) => {
+          console.error('Error receiving game state updates:', error);
+          this._toastr.warning(`This game is not available yet.`);
+        }
+      })
     );
   }
 
+
+
+  public handleButtonAction(action: 'start' | 'reset' = 'start'): void {
+    console.log(`${this.buttonActionText()} button clicked.`);
+    // 1. Determine the payload structure based directly on your winner state
+    const isReset = !!this._winner();
+    const payload: IConnectFourInitGameState = isReset
+      ? { type: EventEnum.INIT, reset: EventEnum.RESET }
+      : { type: EventEnum.INIT };
+    // 2. Clear your local winner state flag
+    this._winner.set(null);
+    // 3. Fire a single clean network request
+    this._connectFourApi.sendGameState(payload);
+
+  }
+
+  private _updateBoard(gameState: any): void {
+    console.log('Updating board with new game state:', gameState);
+    // { type: 'move', player: 'red', column: 6, row: 0 }
+    if (gameState.column !== undefined && gameState.row !== undefined && gameState.player) {
+      const { column, row, player } = gameState;
+      const updatedColumn = [...this.board[column]];
+      updatedColumn[row] = player === 'red' ? ConnectFourCellState.RED : ConnectFourCellState.YELLOW;
+
+      const newBoardSnapshot = [...this.board];
+      newBoardSnapshot[column] = updatedColumn;
+
+      this.board = newBoardSnapshot;
+      this._cdr.markForCheck(); // Ensure the view updates with the new board state
+    }
+  }
+
+  private _resetBoard(): void {
+    this.board = Array.from({ length: this.totalColumns }, () =>
+      Array(this.totalRows).fill(ConnectFourCellState.EMPTY)
+    );
+    this._winner.set(null);
+    this.showInviteLink.set(false);
+    this._cdr.markForCheck();
+  }
+
+
   // Example event handler for when a user clicks a column
   public playMove(columnIndex: number): void {
-    console.log(`Column ${columnIndex} clicked`);
     this._connectFourApi.sendGameState({ type: EventEnum.MOVE, column: columnIndex });
   }
-
-
-
-  /* 
-    function playMove(board, player, column, row) {
-  // Check values of arguments.
-  if (player !== PLAYER1 && player !== PLAYER2) {
-    throw new Error(`player must be ${PLAYER1} or ${PLAYER2}.`);
-  }
-  const columnElement = board.querySelectorAll(".column")[column];
-  if (columnElement === undefined) {
-    throw new RangeError("column must be between 0 and 6.");
-  }
-  const cellElement = columnElement.querySelectorAll(".cell")[row];
-  if (cellElement === undefined) {
-    throw new RangeError("row must be between 0 and 5.");
-  }
-  // Place checker in cell.
-  if (!cellElement.classList.replace("empty", player)) {
-    throw new Error("cell must be empty.");
-  }
-}
-
-
-function initGame(websocket) {
-  websocket.addEventListener("open", () => {
-    // Send an "init" event according to who is connecting.
-    const params = new URLSearchParams(window.location.search);
-    const baseUrl = window.location.origin + window.location.pathname;
-    console.log("Initializing game with params:", params.toString());
-    console.log("Base URL:", baseUrl);
-    let event = { type: "init" };
-    if (params.has("join")) {
-      // Second player joins an existing game.
-      event.join = params.get("join");
-    } else if (params.has("watch")) {
-      // Spectator watches an existing game.
-      event.watch = params.get("watch");
-    } else {
-      // First player starts a new game.
-      console.log("Starting a new game.");
-    }
-    const jsonFormattedEvent = JSON.stringify(event);
-    console.log("Sending event:", jsonFormattedEvent);
-    websocket.send(jsonFormattedEvent);
-  });
-}
-
-function showMessage(message) {
-  window.setTimeout(() => window.alert(message), 50);
-}
-
-function receiveMoves(board, websocket) {
-  websocket.addEventListener("message", ({ data }) => {
-    const event = JSON.parse(data);
-    console.log("Received event:", event);
-    switch (event.type) {
-      case "init":
-        // Create links for inviting the second player and spectators.
-        document.querySelector(".join").href = "?join=" + event.join;
-        document.querySelector(".watch").href = "?watch=" + event.watch;
-        showMessage(
-          `Game initialized! Share this URL with a friend to join: ${window.location.origin + window.location.pathname}?join=${event.join}`,
-        );
-        break;
-      case "play":
-        // Update the UI with the move.
-        playMove(board, event.player, event.column, event.row);
-        break;
-      case "win":
-        showMessage(`Player ${event.player} wins!`);
-        // No further messages are expected; close the WebSocket connection.
-        websocket.close(1000);
-        break;
-      case "error":
-        showMessage(event.message);
-        break;
-      default:
-        throw new Error(`Unsupported event type: ${event.type}.`);
-    }
-  });
-}
-
-function sendMoves(board, websocket) {
-  // Don't send moves for a spectator watching a game.
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("watch")) {
-    return;
-  }
-
-  // When clicking a column, send a "play" event for a move in that column.
-  board.addEventListener("click", ({ target }) => {
-    const column = target.dataset.column;
-    // Ignore clicks outside a column.
-    if (column === undefined) {
-      return;
-    }
-    const event = {
-      type: "play",
-      column: parseInt(column, 10),
-    };
-    websocket.send(JSON.stringify(event));
-  });
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  // Initialize the UI.
-  const board = document.querySelector(".board");
-  createBoard(board);
-  // Open the WebSocket connection and register event handlers.
-  const websocket = new WebSocket("ws://localhost:8001/");
-  initGame(websocket);
-  receiveMoves(board, websocket);
-  sendMoves(board, websocket);
-});
-  */
 }

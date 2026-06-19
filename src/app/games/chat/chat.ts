@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AbstractChat } from '../../directives/abstract-chat';
 import { ApiService } from '../../services/api.service';
 import { ISocketMessage } from '../../models/socket-message.interface';
+import { ActiveUsersBadge } from "../../active-users-badge/active-users-badge";
 
 /**
  * Using console logs to trace component lifecycle and message flow for debugging purposes. Ensuring that all interactions with the ApiService are logged for visibility into connection status and message handling.
@@ -12,7 +13,7 @@ import { ISocketMessage } from '../../models/socket-message.interface';
 
 @Component({
   selector: 'app-chat',
-  imports: [CommonModule],
+  imports: [CommonModule, ActiveUsersBadge],
   templateUrl: './chat.html',
   styleUrls: ['./chat.scss'],
 })

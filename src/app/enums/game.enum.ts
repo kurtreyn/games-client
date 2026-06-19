@@ -3,7 +3,12 @@ export enum EventEnum {
     JOIN = 'join',
     MOVE = 'move',
     WIN = 'win',
-    ERROR = 'error'
+    ERROR = 'error',
+    RESET = 'reset',
+    PLAYER_JOINED = 'player_joined',
+    PLAYER = 'player',
+    COLUMN = 'column',
+    ROW = 'row',
 }
 
 

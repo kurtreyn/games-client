@@ -1,15 +1,34 @@
 <div class="container mt-2">
   <h1 class="text-center mb-4">Connect Four</h1>
 
+  @if (!isConnected()) {
+    <app-notifications></app-notifications>
+  }
+
   <!-- The board container element -->
   <div class="board-container">
+    @if (isConnected()) {
+      @if (activeUsersCount() > 0 || joinKey()) {
+        <app-active-users-badge [label]="badgeLabel" [activeUsersCount]="activeUsersCount()" />
+      }
+      @if (showInviteLink()) {
+        <app-game-invite-link-container [inviteLink]="inviteLink" />
+      }
+      @if (showInstructions()) {
+        <span>{{ instructionText }}</span>
+      } @else {
+        <span>You are playing as {{ playerColor() }}</span>
+        <span> Red player goes first. Yellow player goes second.</span>
+      }
+    }
+
     <!-- The Board -->
     <div class="board">
       <!-- Loop through each column (outer array) -->
       @for (column of board; track colIndex; let colIndex = $index) {
         <div class="column" [attr.data-column]="colIndex" (click)="playMove(colIndex)">
           <!-- Loop through each cell in the column (inner array) -->
-          @for (cellState of column; track rowIndex; let rowIndex = $index) {
+          @for (cellState of column; track rowIndex + '-' + cellState; let rowIndex = $index) {
             <div
               class="cell"
               [attr.data-column]="colIndex"
@@ -22,10 +41,11 @@
       }
     </div>
     <!-- Actions Panel  -->
-    <div class="actions">
-      <button class="action" (click)="resetBoard()">Reset</button>
-      <button class="action">Rules</button>
-    </div>
+    @if (showActionButton()) {
+      <div class="actions">
+        <button class="action" (click)="handleButtonAction()">{{ buttonActionText() }}</button>
+      </div>
+    }
     <!-- END CONTAINER -->
   </div>
 </div>
