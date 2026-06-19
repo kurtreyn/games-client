@@ -84,17 +84,17 @@ export class ConnectFourApi {
     /**
      * Exposes the game state stream to the component
      */
-    public getGameState(): Observable<any> {
+    public getGameState(): Observable<IConnectFourInitGameState> {
         return this._gameState$.asObservable();
     }
 
     /**
      * Handles sending data to the open socket
      */
-    public sendGameState(state: any): void {
+    public sendGameState(gameState: IConnectFourInitGameState): void {
         if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-            this._socket.send(JSON.stringify(state));
-            console.log('Sent to server:', state);
+            this._socket.send(JSON.stringify(gameState));
+            console.log('Sent to server:', gameState);
             return;
         }
         console.warn('Cannot send message, socket is not open.');

@@ -38,9 +38,9 @@
       }
     </div>
     <!-- Actions Panel  -->
-    @if (activeUsersCount() === 0 && !joinKey()) {
+    @if (showActionButton()) {
       <div class="actions">
-        <button class="action" (click)="startGame()">Start</button>
+        <button class="action" (click)="handleButtonAction()">{{ buttonActionText() }}</button>
       </div>
     }
     <!-- END CONTAINER -->

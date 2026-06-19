@@ -6,7 +6,8 @@ import {
   input,
   effect,
   ChangeDetectorRef,
-  signal
+  signal,
+  computed
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
@@ -30,13 +31,23 @@ export class ConnectFour implements OnInit {
   private _toastr = inject(ToastrService);
   private _destroyRef = inject(DestroyRef);
   private _subs = new Subscription();
+  private _winner = signal<string | null>(null);
 
   public isConnected = this._connectFourApi.isConnectedSignal;
   public board: ConnectFourCellState[][] = [];
   public activeUsersCount = this._connectFourApi.activeUsersCount;
   public showInviteLink = signal(false);
   public showInstructions = signal(true);
+  public showActionButton = computed(() => {
+    const count = this.activeUsersCount();
+    const hasJoinKey = !!this.joinKey();
+    const hasWinner = !!this._winner();
+    return (count === 0 && !hasJoinKey) || hasWinner;
+  });
   public inviteLink: string = window.location.href;
+  public buttonActionText = computed<'Start' | 'Play Again'>(() => {
+    return this._winner() ? 'Play Again' : 'Start';
+  });
   public joinKey = input<string | null>(null, { alias: 'join' });
 
   public readonly badgeLabel = 'Players in Game';
@@ -63,7 +74,7 @@ export class ConnectFour implements OnInit {
       this._connectFourApi.connectToServer().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
-        next: (isConnected) => {
+        next: (isConnected: boolean) => {
           console.log('Connect Four connection status:', isConnected);
           if (isConnected) {
             const key = this.joinKey();
@@ -90,7 +101,7 @@ export class ConnectFour implements OnInit {
       this._connectFourApi.getGameState().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
-        next: (gameState) => {
+        next: (gameState: IConnectFourInitGameState) => {
           console.log('Received game state update:', gameState);
 
           switch (gameState.type) {
@@ -109,9 +120,15 @@ export class ConnectFour implements OnInit {
               break;
             case EventEnum.MOVE:
               this._updateBoard(gameState);
+              this._cdr.markForCheck();
               break;
             case EventEnum.WIN:
-              this._toastr.success(`Player ${gameState.winner} wins!`);
+              this._winner.set(gameState.player || null);
+              this._toastr.success(`${gameState.player} wins!`);
+              break;
+            case EventEnum.RESET:
+              this._resetBoard();
+              this._toastr.info(`New game started!`);
               break;
             case EventEnum.ERROR:
               this._toastr.error(gameState.text || 'An error occurred in the game.');
@@ -137,9 +154,18 @@ export class ConnectFour implements OnInit {
 
 
 
-  public startGame() {
-    console.log('Start Game button clicked');
-    this._connectFourApi.sendGameState({ type: EventEnum.INIT });
+  public handleButtonAction(action: 'start' | 'reset' = 'start'): void {
+    console.log(`${this.buttonActionText()} button clicked.`);
+    // 1. Determine the payload structure based directly on your winner state
+    const isReset = !!this._winner();
+    const payload: IConnectFourInitGameState = isReset
+      ? { type: EventEnum.INIT, reset: EventEnum.RESET }
+      : { type: EventEnum.INIT };
+    // 2. Clear your local winner state flag
+    this._winner.set(null);
+    // 3. Fire a single clean network request
+    this._connectFourApi.sendGameState(payload);
+
   }
 
   private _updateBoard(gameState: any): void {
@@ -162,6 +188,7 @@ export class ConnectFour implements OnInit {
     this.board = Array.from({ length: this.totalColumns }, () =>
       Array(this.totalRows).fill(ConnectFourCellState.EMPTY)
     );
+    this._cdr.markForCheck();
   }
 
 
