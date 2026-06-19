@@ -49,6 +49,14 @@ export class ConnectFour implements OnInit {
     return this._winner() ? 'Play Again' : 'Start';
   });
   public joinKey = input<string | null>(null, { alias: 'join' });
+  public playerColor = computed(() => {
+    const joinKey = this.joinKey();
+    if (!joinKey) {
+      return 'red';
+    } else {
+      return 'yellow';
+    }
+  });
 
   public readonly badgeLabel = 'Players in Game';
   public readonly instructionText = 'Click START to begin a new game'
@@ -112,11 +120,13 @@ export class ConnectFour implements OnInit {
               }
               this.showInviteLink.set(!!joinLink);
               this.showInstructions.set(!joinLink);
+              console.log('JOIN KEY: ', this.joinKey());
               break;
             case EventEnum.PLAYER_JOINED:
-              this._toastr.success(`A new player has joined the game!`);
+              this._toastr.success(`A new player has joined the game. You can start playing.`);
               this.showInviteLink.set(false);
               this.showInstructions.set(false);
+              console.log('JOIN KEY: ', this.joinKey());
               break;
             case EventEnum.MOVE:
               this._updateBoard(gameState);
@@ -188,6 +198,8 @@ export class ConnectFour implements OnInit {
     this.board = Array.from({ length: this.totalColumns }, () =>
       Array(this.totalRows).fill(ConnectFourCellState.EMPTY)
     );
+    this._winner.set(null);
+    this.showInviteLink.set(false);
     this._cdr.markForCheck();
   }
 
