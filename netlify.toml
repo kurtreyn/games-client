@@ -3,6 +3,6 @@
   publish = "dist/games-client/browser"
 
 [[redirects]]
-  from = "/"
+  from = "/*"
   to = "/index.html"
   status = 200
