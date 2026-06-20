@@ -2,9 +2,9 @@ import { IRummyPlayer } from './rummy-player.interface';
 
 export interface IRummyGameState {
     players: IRummyPlayer[];
-    currentPlayerId: string;
-    cardDeck: string[];
-    discardPile: string[];
-    isGameOver: boolean;
-    winnerId?: string;
+    current_player_id: string;
+    card_deck: string[];
+    discard_pile: string[];
+    is_game_over: boolean;
+    winner_id?: string;
 }
