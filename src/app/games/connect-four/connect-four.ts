@@ -17,11 +17,13 @@ import { ConnectFourCellState, EventEnum } from '../../enums/game.enum';
 import { ActiveUsersBadge } from '../../active-users-badge/active-users-badge'
 import { GameInviteLinkContainer } from '../../game-invite-link-container/game-invite-link-container';
 import { Notifications } from '../../notifications/notifications';
-import { IConnectFourInitGameState } from '../../models/connect-four.interface';
+import { IConnectFourGameState } from '../../models/connect-four.interface';
+import { TurnIndicator } from '../../turn-indicator/turn-indicator';
+
 
 @Component({
   selector: 'app-connect-four',
-  imports: [ActiveUsersBadge, GameInviteLinkContainer, Notifications],
+  imports: [ActiveUsersBadge, GameInviteLinkContainer, Notifications, TurnIndicator],
   templateUrl: './connect-four.html',
   styleUrl: './connect-four.scss',
 })
@@ -44,6 +46,7 @@ export class ConnectFour implements OnInit {
     const hasWinner = !!this._winner();
     return (count === 0 && !hasJoinKey) || hasWinner;
   });
+  public isPlayerTurn = signal(false);
   public inviteLink: string = window.location.href;
   public buttonActionText = computed<'Start' | 'Play Again'>(() => {
     return this._winner() ? 'Play Again' : 'Start';
@@ -57,6 +60,12 @@ export class ConnectFour implements OnInit {
       return 'yellow';
     }
   });
+  public showInfoContainer = computed(() => {
+    if (this.activeUsersCount() === 2 && !this._winner()) {
+      return true;
+    }
+    return false;
+  })
 
   public readonly badgeLabel = 'Players in Game';
   public readonly instructionText = 'Click START to begin a new game'
@@ -109,7 +118,7 @@ export class ConnectFour implements OnInit {
       this._connectFourApi.getGameState().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
-        next: (gameState: IConnectFourInitGameState) => {
+        next: (gameState: IConnectFourGameState) => {
           console.log('Received game state update:', gameState);
 
           switch (gameState.type) {
@@ -127,10 +136,11 @@ export class ConnectFour implements OnInit {
               this.showInviteLink.set(false);
               this.showInstructions.set(false);
               console.log('JOIN KEY: ', this.joinKey());
+              this._setInitialTurnIndicator();
               break;
             case EventEnum.MOVE:
               this._updateBoard(gameState);
-              this._cdr.markForCheck();
+              // this._cdr.markForCheck();
               break;
             case EventEnum.WIN:
               this._winner.set(gameState.player || null);
@@ -145,13 +155,6 @@ export class ConnectFour implements OnInit {
               break;
             default:
               console.warn('Something went wrong', gameState.type);
-          }
-
-
-
-          // Update the board state based on the received game state
-          if (gameState.board) {
-            this.board = gameState.board;
           }
         },
         error: (error) => {
@@ -168,17 +171,35 @@ export class ConnectFour implements OnInit {
     console.log(`${this.buttonActionText()} button clicked.`);
     // 1. Determine the payload structure based directly on your winner state
     const isReset = !!this._winner();
-    const payload: IConnectFourInitGameState = isReset
+    const payload: IConnectFourGameState = isReset
       ? { type: EventEnum.INIT, reset: EventEnum.RESET }
       : { type: EventEnum.INIT };
     // 2. Clear your local winner state flag
     this._winner.set(null);
     // 3. Fire a single clean network request
     this._connectFourApi.sendGameState(payload);
-
   }
 
-  private _updateBoard(gameState: any): void {
+  private _setInitialTurnIndicator(): void {
+    if (this.joinKey()) {
+      this.isPlayerTurn.set(false);
+    } else {
+      this.isPlayerTurn.set(true);
+    }
+  }
+
+  private _updateTurnIndicator(gameState: IConnectFourGameState) {
+    const currentPlayer = this.playerColor();
+    console.log('playerColor: ', currentPlayer);
+    if (gameState.player === currentPlayer) {
+      this.isPlayerTurn.set(false);
+    } else {
+      this.isPlayerTurn.set(true);
+    }
+    this._cdr.markForCheck();
+  }
+
+  private _updateBoard(gameState: IConnectFourGameState): void {
     console.log('Updating board with new game state:', gameState);
     // { type: 'move', player: 'red', column: 6, row: 0 }
     if (gameState.column !== undefined && gameState.row !== undefined && gameState.player) {
@@ -190,6 +211,7 @@ export class ConnectFour implements OnInit {
       newBoardSnapshot[column] = updatedColumn;
 
       this.board = newBoardSnapshot;
+      this._updateTurnIndicator(gameState);
       this._cdr.markForCheck(); // Ensure the view updates with the new board state
     }
   }
@@ -204,7 +226,6 @@ export class ConnectFour implements OnInit {
   }
 
 
-  // Example event handler for when a user clicks a column
   public playMove(columnIndex: number): void {
     this._connectFourApi.sendGameState({ type: EventEnum.MOVE, column: columnIndex });
   }

@@ -1,6 +1,6 @@
 import { EventEnum, ConnectFourCellState } from '../enums/game.enum';
 
-export interface IConnectFourInitGameState {
+export interface IConnectFourGameState {
     type: EventEnum;
     join?: string;
     join_url?: string;

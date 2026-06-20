@@ -17,8 +17,11 @@
       @if (showInstructions()) {
         <span>{{ instructionText }}</span>
       } @else {
-        <span>You are playing as {{ playerColor() }}</span>
-        <span> Red player goes first. Yellow player goes second.</span>
+        @if (showInfoContainer()) {
+          <div class="info-container">
+            <app-turn-indicator [isPlayerTurn]="isPlayerTurn()" />
+          </div>
+        }
       }
     }
 
