@@ -1,1 +1,5 @@
-<p>rummy works!</p>
+<div class="container mt-2">
+  <h1 class="text-center mb-4">Rummy</h1>
+
+  <app-card *ngFor="let card of cardDeck" [card]="card"></app-card>
+</div>
