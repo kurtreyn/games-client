@@ -1,5 +1,6 @@
 export interface ICard {
     suit: string;
     rank: string;
-    image: string;
+    value: string;
+    image_path: string;
 }

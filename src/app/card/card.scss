@@ -1,8 +1,14 @@
+/* card.scss */
 .card-container {
-  display: block;
-}
+  display: inline-block;
+  margin: 5px;
+  cursor: pointer;
 
-.card-image {
-  width: 100px;
-  height: auto;
+  .card-image {
+    width: 75px; /* Explicit width */
+    height: auto; /* Keeps correct card aspect ratio */
+    display: block;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
 }

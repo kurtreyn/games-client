@@ -11,4 +11,8 @@ import { ICard } from '../models/card.intercace';
 export class Card {
   @Input() card!: ICard;
 
+  public onCardClick(): void {
+    console.log(`Card clicked: ${this.card.value}`);
+  }
+
 }
