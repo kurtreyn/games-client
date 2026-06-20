@@ -156,14 +156,6 @@ export class ConnectFour implements OnInit {
             default:
               console.warn('Something went wrong', gameState.type);
           }
-
-
-
-          // Update the board state based on the received game state
-          if (gameState.board) {
-            console.log('$$$$$ gameState.board: ', gameState.board);
-            this.board = gameState.board;
-          }
         },
         error: (error) => {
           console.error('Error receiving game state updates:', error);
