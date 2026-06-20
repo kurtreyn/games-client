@@ -1,0 +1,17 @@
+<div class="turn-indicator-container">
+  @if (isPlayerTurn) {
+    <span class="turn-indicator-text">Your turn</span>
+    <img
+      class="turn-indicator-image"
+      [src]="GlobalResourceMap.images.green_circle"
+      alt="Green Circle"
+    />
+  } @else {
+    <span class="turn-indicator-text">Opponent's turn</span>
+    <img
+      class="turn-indicator-image"
+      [src]="GlobalResourceMap.images.red_circle"
+      alt="Red Circle"
+    />
+  }
+</div>

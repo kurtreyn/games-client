@@ -1,7 +1,7 @@
 import { Injectable, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
-import { IConnectFourInitGameState } from '../models/connect-four.interface';
+import { IConnectFourGameState } from '../models/connect-four.interface';
 import { EventEnum } from '../enums/game.enum';
 import { environment } from '../config/config';
 
@@ -84,14 +84,14 @@ export class ConnectFourApi {
     /**
      * Exposes the game state stream to the component
      */
-    public getGameState(): Observable<IConnectFourInitGameState> {
+    public getGameState(): Observable<IConnectFourGameState> {
         return this._gameState$.asObservable();
     }
 
     /**
      * Handles sending data to the open socket
      */
-    public sendGameState(gameState: IConnectFourInitGameState): void {
+    public sendGameState(gameState: IConnectFourGameState): void {
         if (this._socket && this._socket.readyState === WebSocket.OPEN) {
             this._socket.send(JSON.stringify(gameState));
             console.log('Sent to server:', gameState);
