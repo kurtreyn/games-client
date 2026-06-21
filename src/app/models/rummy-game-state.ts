@@ -5,6 +5,7 @@ export interface IRummyGameState {
     current_player_id: string;
     card_deck: string[];
     discard_pile: string[];
-    is_game_over: boolean;
+    moves: string[];
+    is_over: boolean;
     winner_id?: string;
 }
