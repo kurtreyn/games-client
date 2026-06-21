@@ -4,5 +4,4 @@ export interface IResourceMap {
     title: string;
     description: string;
     link: string;
-    join_keys?: string[];
 }

@@ -1,7 +1,7 @@
 import { Directive } from '@angular/core';
 import { OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ChatApiService } from '../services/chat-api';
+import { ApiService } from '../services/api.service';
 import { Subscription } from 'rxjs';
 import { ISocketMessage } from '../models/socket-message.interface';
 
@@ -21,7 +21,7 @@ export class AbstractChat implements OnInit {
 
   private _destroyRef = inject(DestroyRef);
 
-  constructor(protected _chatApiService: ChatApiService) { }
+  constructor(protected _apiService: ApiService) { }
 
 
 
@@ -30,7 +30,7 @@ export class AbstractChat implements OnInit {
 
     // 1. Listen to connection status and update state signal
     this._subs.add(
-      this._chatApiService.connectToServer().pipe(
+      this._apiService.connectToServer().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
         next: (connected) => {
@@ -46,7 +46,7 @@ export class AbstractChat implements OnInit {
 
     // 2. Listen for incoming messages and update state signal
     this._subs.add(
-      this._chatApiService.getMessages().pipe(
+      this._apiService.getMessages().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
         next: (incomingMessage) => {
@@ -57,7 +57,7 @@ export class AbstractChat implements OnInit {
 
     this._destroyRef.onDestroy(() => {
       console.log('Component is being destroyed, disconnecting from server and cleaning up subscriptions.');
-      this._chatApiService.disconnect();
+      this._apiService.disconnect();
       this._subs.unsubscribe();
     });
   }
