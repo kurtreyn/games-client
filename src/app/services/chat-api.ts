@@ -11,7 +11,7 @@ import { environment } from '../config/config';
 @Injectable({
   providedIn: 'root'
 })
-export class ApiService {
+export class ChatApiService {
   private _socket: WebSocket | null = null;
   private _isConnected$ = new BehaviorSubject<boolean>(false);
 

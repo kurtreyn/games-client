@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractChat } from '../../directives/abstract-chat';
-import { ApiService } from '../../services/api.service';
+import { ChatApiService } from '../../services/chat-api';
 import { ISocketMessage } from '../../models/socket-message.interface';
 import { ActiveUsersBadge } from "../../active-users-badge/active-users-badge";
 
@@ -29,7 +29,7 @@ export class Chat extends AbstractChat implements AfterViewChecked {
     }
   }
 
-  constructor(_apiService: ApiService) {
+  constructor(_apiService: ChatApiService) {
     super(_apiService);
   }
 
@@ -80,7 +80,7 @@ export class Chat extends AbstractChat implements AfterViewChecked {
     };
 
     // Dispatch via service
-    const sentSuccessfully = this._apiService.sendMessage(outgoingMessage);
+    const sentSuccessfully = this._chatApiService.sendMessage(outgoingMessage);
 
     // Update local list state if sent (or unconditionally, depending on your preferred UI behavior)
     if (sentSuccessfully) {

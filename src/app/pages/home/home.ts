@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
-import { ApiService } from '../../services/api.service';
+import { ChatApiService } from '../../services/chat-api';
 import { Chat } from '../../games/chat/chat';
 import { Notifications } from '../../notifications/notifications';
 
@@ -10,7 +10,7 @@ import { Notifications } from '../../notifications/notifications';
   styleUrls: ['./home.scss'],
 })
 export class Home implements OnInit {
-  private _apiService = inject(ApiService);
+  private _apiService = inject(ChatApiService);
   private _destroyRef = inject(DestroyRef);
   public isConnected = this._apiService.isConnectedSignal;
 

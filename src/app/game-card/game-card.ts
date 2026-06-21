@@ -15,8 +15,7 @@ export class GameCard {
 
   @Input({ required: true }) public gameResourceMap!: IResourceMap;
 
-  public onPlayNow(id: string) {
-
+  public onStartNewGame(id: string) {
     switch (id) {
       case 'rummy':
         this._toastr.warning(`This game is not available yet.`);
@@ -29,12 +28,26 @@ export class GameCard {
           this._toastr.error(`Route for Connect Four not found.`);
         }
         break;
-      case 'chess':
+      default:
+        this._toastr.error(`Unknown game ID: ${id}`);
+    }
+  }
+
+  public onJoinGame(id: string, joinKey?: string) {
+    switch (id) {
+      case 'rummy':
         this._toastr.warning(`This game is not available yet.`);
+        break;
+      case 'connect_four':
+        const route = this.gameResourceMap.link + (joinKey ? `/${joinKey}` : '');
+        if (route) {
+          this._router.navigateByUrl(route);
+        } else {
+          this._toastr.error(`Route for Connect Four not found.`);
+        }
         break;
       default:
         this._toastr.error(`Unknown game ID: ${id}`);
     }
-
   }
 }

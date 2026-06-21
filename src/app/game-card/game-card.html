@@ -14,6 +14,15 @@
     <p class="card-text text-muted">
       {{ gameResourceMap.description }}
     </p>
-    <button class="btn btn-primary w-100" (click)="onPlayNow(gameResourceMap.id)">Play Now</button>
+  </div>
+  <div class="card-footer text-muted text-center">
+    <div class="btn-container">
+      <button class="btn btn-primary w-100" (click)="onStartNewGame(gameResourceMap.id)">
+        Start New Game
+      </button>
+      <button class="btn btn-secondary w-100" (click)="onJoinGame(gameResourceMap.id)">
+        Join Game
+      </button>
+    </div>
   </div>
 </div>
