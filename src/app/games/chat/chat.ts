@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractChat } from '../../directives/abstract-chat';
-import { ApiService } from '../../services/api.service';
+import { ChatService } from '../../services/chat.service';
 import { ISocketMessage } from '../../models/socket-message.interface';
 import { ActiveUsersBadge } from "../../active-users-badge/active-users-badge";
 
@@ -29,7 +29,7 @@ export class Chat extends AbstractChat implements AfterViewChecked {
     }
   }
 
-  constructor(_apiService: ApiService) {
+  constructor(_apiService: ChatService) {
     super(_apiService);
   }
 

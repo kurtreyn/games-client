@@ -1,28 +1,21 @@
 import { Directive } from '@angular/core';
 import { OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ChatService } from '../services/chat.service';
+import { GameLobbyApi } from '../services/game-lobby-api';
 import { Subscription } from 'rxjs';
 import { ISocketMessage } from '../models/socket-message.interface';
 
-/**
- * AbstractChat serves as a base directive for chat-related components, providing common functionality and structure. It can be extended by specific chat implementations to ensure consistency and reuse of shared logic across different chat components.
- */
-
 @Directive({
-  selector: '[appAbstractChat]',
+  selector: '[appAbstractGames]',
 })
-export class AbstractChat implements OnInit {
+export class AbstractGames implements OnInit {
   protected _subs = new Subscription();
+  protected _destroyRef = inject(DestroyRef);
+  protected _gameLobbyApi = inject(GameLobbyApi);
 
   public isConnected = signal(false);
-  public messages = signal<ISocketMessage[]>([]);
+  public transmissions = signal<ISocketMessage[]>([]);
   public userName = signal('');
-
-  private _destroyRef = inject(DestroyRef);
-
-  constructor(protected _apiService: ChatService) { }
-
 
 
   ngOnInit(): void {
@@ -30,7 +23,7 @@ export class AbstractChat implements OnInit {
 
     // 1. Listen to connection status and update state signal
     this._subs.add(
-      this._apiService.connectToServer().pipe(
+      this._gameLobbyApi.connectToServer().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
         next: (connected) => {
@@ -46,18 +39,18 @@ export class AbstractChat implements OnInit {
 
     // 2. Listen for incoming messages and update state signal
     this._subs.add(
-      this._apiService.getMessages().pipe(
+      this._gameLobbyApi.getTransmissions().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
         next: (incomingMessage) => {
-          this.messages.update(prev => [...prev, incomingMessage]);
+          this.transmissions.update(prev => [...prev, incomingMessage]);
         }
       })
     );
 
     this._destroyRef.onDestroy(() => {
       console.log('Component is being destroyed, disconnecting from server and cleaning up subscriptions.');
-      this._apiService.disconnect();
+      this._gameLobbyApi.disconnect();
       this._subs.unsubscribe();
     });
   }

@@ -4,4 +4,6 @@ export interface ISocketMessage {
     userName?: string;
     count?: number;
     timeStamp: Date;
+    games_available?: string[]; // For game lobby updates, if applicable
+    join_keys?: string[]; // For game lobby updates, if applicable
 }
