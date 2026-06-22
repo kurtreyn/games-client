@@ -1,7 +1,7 @@
 import { Directive } from '@angular/core';
 import { OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ApiService } from '../services/api.service';
+import { ChatService } from '../services/chat.service';
 import { Subscription } from 'rxjs';
 import { ISocketMessage } from '../models/socket-message.interface';
 
@@ -21,7 +21,7 @@ export class AbstractChat implements OnInit {
 
   private _destroyRef = inject(DestroyRef);
 
-  constructor(protected _apiService: ApiService) { }
+  constructor(protected _apiService: ChatService) { }
 
 
 

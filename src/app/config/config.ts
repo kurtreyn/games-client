@@ -5,4 +5,5 @@ export const environment = {
     connect_four_endpoint: '/connect-four',
     chat_endpoint: '/chat',
     rummy_endpoint: '/rummy',
+    games_endpoint: '/games',
 };
