@@ -1,7 +1,7 @@
 <div class="container">
   <div class="flex-row">
     @for (game of gameResourceMap; track game.id) {
-      <app-game-card [gameResourceMap]="game"></app-game-card>
+      <app-game-card [gameResourceMap]="game" [availableGames]="availableGames()"> </app-game-card>
     } @empty {
       <p>No games available at the moment.</p>
     }

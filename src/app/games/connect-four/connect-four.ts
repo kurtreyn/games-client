@@ -10,9 +10,11 @@ import {
   computed
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription } from 'rxjs';
+// import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { AbstractGames } from '../../directives/abstract-games';
 import { ConnectFourApi } from '../../services/connect-four-api';
+import { GameLobbyApi } from '../../services/game-lobby-api';
 import { ConnectFourCellState, EventEnum } from '../../enums/game.enum';
 import { ActiveUsersBadge } from '../../active-users-badge/active-users-badge'
 import { GameInviteLinkContainer } from '../../game-invite-link-container/game-invite-link-container';
@@ -27,12 +29,12 @@ import { TurnIndicator } from '../../turn-indicator/turn-indicator';
   templateUrl: './connect-four.html',
   styleUrl: './connect-four.scss',
 })
-export class ConnectFour implements OnInit {
+export class ConnectFour extends AbstractGames implements OnInit {
   private _cdr = inject(ChangeDetectorRef);
   private _connectFourApi = inject(ConnectFourApi);
   private _toastr = inject(ToastrService);
-  private _destroyRef = inject(DestroyRef);
-  private _subs = new Subscription();
+  // private odestroyRef = inject(DestroyRef);
+  // private _subs = new Subscription();
   private _winner = signal<string | null>(null);
 
   public isConnected = this._connectFourApi.isConnectedSignal;
@@ -73,14 +75,15 @@ export class ConnectFour implements OnInit {
   public readonly totalColumns = 7;
   public readonly totalRows = 6;
 
-  constructor() {
+  constructor(_gameLobbyApi: GameLobbyApi) {
     effect(() => {
       const joinValue = this.joinKey();
       console.log('Join key from URL parameters:', joinValue);
     });
+    super();
   }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this._resetBoard();
     this._connectToGameServer();
     this._subscribeToGameState();
