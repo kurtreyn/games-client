@@ -13,6 +13,7 @@ import { ILobbyGameMatch } from '../models/games.interface';
 })
 export class GameCard {
   private _router = inject(Router);
+  private _toastr = inject(ToastrService);
 
   @Input({ required: true }) public gameResourceMap!: IResourceMap;
   public availableGames = input<ILobbyGameMatch[]>([]);
