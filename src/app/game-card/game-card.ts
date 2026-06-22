@@ -12,7 +12,6 @@ import { ILobbyGameMatch } from '../models/games.interface';
   styleUrl: './game-card.scss',
 })
 export class GameCard {
-  private _toastr = inject(ToastrService);
   private _router = inject(Router);
 
   @Input({ required: true }) public gameResourceMap!: IResourceMap;

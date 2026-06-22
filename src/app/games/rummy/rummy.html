@@ -1,0 +1,9 @@
+<div class="container mt-2">
+  <h1 class="text-center mb-4">Rummy</h1>
+
+  <div class="deck-grid">
+    @for (currentCard of cardDeck; track currentCard.image_path) {
+      <app-card [card]="currentCard"></app-card>
+    }
+  </div>
+</div>
