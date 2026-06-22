@@ -35,46 +35,22 @@ export class GameCard {
     return match.join_key;
   }
 
-  public onStartNewGame(id: string) {
-    switch (id) {
-      case 'rummy':
-        this._toastr.warning(`This game is not available yet.`);
-        break;
-      case 'connect_four':
-        const route = this.gameResourceMap.link;
-        console.log(`>>> Navigating to route: ${route}`);
-        if (route) {
-          this._router.navigateByUrl(route);
-        } else {
-          this._toastr.error(`Route for Connect Four not found.`);
-        }
-        break;
-      default:
-        this._toastr.error(`Unknown game ID: ${id}`);
-    }
+  public onStartNewGame() {
+    this._router.navigateByUrl(this.gameResourceMap.link);
   }
 
-  public onJoinGame(id: string) {
-    switch (id) {
-      case 'rummy':
-        this._toastr.warning(`This game is not available yet.`);
-        break;
-      case 'connect_four':
-        const joinKey = this._getJoinKey();
-        const baseRoute = this.gameResourceMap.link; // e.g., '/games/connect-four'
+  public onJoinGame() {
+    const joinKey = this._getJoinKey();
+    const baseRoute = this.gameResourceMap.link; // e.g., '/games/connect-four'
 
-        if (baseRoute && joinKey) {
-          console.log(`>>> Navigating cleanly to: ${baseRoute} with key: ${joinKey}`);
+    if (baseRoute && joinKey) {
+      console.log(`>>> Navigating cleanly to: ${baseRoute} with key: ${joinKey}`);
 
-          this._router.navigate([baseRoute], {
-            queryParams: { join: joinKey }
-          });
-        } else {
-          this._toastr.error(`Could not execute game redirection sequence.`);
-        }
-        break;
-      default:
-        this._toastr.error(`Unknown game ID: ${id}`);
+      this._router.navigate([baseRoute], {
+        queryParams: { join: joinKey }
+      });
+    } else {
+      this._toastr.error(`Could not execute game redirection sequence.`);
     }
   }
 }
