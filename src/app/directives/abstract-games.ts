@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GameLobbyApi } from '../services/game-lobby-api';
 import { Subscription } from 'rxjs';
 import { ISocketMessage } from '../models/socket-message.interface';
+import { ILobbyGameMatch } from '../models/games.interface';
 
 @Directive({
   selector: '[appAbstractGames]',
@@ -13,9 +14,11 @@ export class AbstractGames implements OnInit {
   protected _destroyRef = inject(DestroyRef);
   protected _gameLobbyApi = inject(GameLobbyApi);
 
-  public isConnected = signal(false);
+  public isActiveInLobby = signal(false);
   public transmissions = signal<ISocketMessage[]>([]);
   public userName = signal('');
+  public availableGames = signal<ILobbyGameMatch[]>([]);
+  public connectFourGameKeys = signal<string[]>([]);
 
 
   ngOnInit(): void {
@@ -28,11 +31,11 @@ export class AbstractGames implements OnInit {
       ).subscribe({
         next: (connected) => {
           console.log('Connection status updated:', connected);
-          this.isConnected.set(connected);
+          this.isActiveInLobby.set(connected);
         },
         error: (error) => {
           console.error('Error connecting to server:', error);
-          this.isConnected.set(false);
+          this.isActiveInLobby.set(false);
         }
       })
     );
@@ -42,8 +45,28 @@ export class AbstractGames implements OnInit {
       this._gameLobbyApi.getTransmissions().pipe(
         takeUntilDestroyed(this._destroyRef)
       ).subscribe({
-        next: (incomingMessage) => {
-          this.transmissions.update(prev => [...prev, incomingMessage]);
+        next: (incomingTransmission) => {
+          console.log('Received transmission:', incomingTransmission);
+
+          // Check if the property exists on the websocket message
+          if (incomingTransmission.games_available) {
+            const gamesList: ILobbyGameMatch[] = incomingTransmission.games_available;
+            console.log('Updating available games list:', gamesList);
+
+            // 1. Save the full list to your state signal
+            this.availableGames.set(gamesList);
+
+            // 2. Cleanly isolate and pluck out keys for connect_four matches
+            const connectFourKeys = gamesList
+              .filter(item => item.game === 'connect_four')
+              .map(item => item.join_key);
+
+            // 3. Update your keys string array signal
+            this.connectFourGameKeys.set(connectFourKeys);
+          }
+
+          console.log('** Game keys for Connect Four:', this.connectFourGameKeys());
+          this.transmissions.update(prev => [...prev, incomingTransmission]);
         }
       })
     );

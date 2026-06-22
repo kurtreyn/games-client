@@ -1,5 +1,4 @@
 <div class="card card-custom" [attr.id]="gameResourceMap.id">
-  <!-- Card Image Header -->
   <div class="card-image-wrapper">
     <img
       [src]="gameResourceMap.image_path"
@@ -8,12 +7,30 @@
     />
   </div>
 
-  <!-- Card Content Body -->
   <div class="card-body">
     <h5 class="card-title">{{ gameResourceMap.title }}</h5>
     <p class="card-text text-muted">
       {{ gameResourceMap.description }}
     </p>
-    <button class="btn btn-primary w-100" (click)="onPlayNow(gameResourceMap.id)">Play Now</button>
+  </div>
+
+  <div class="card-footer text-muted text-center">
+    <div class="btn-container">
+      <button class="btn btn-primary w-100" (click)="onStartNewGame(gameResourceMap.id)">
+        Start New Game
+      </button>
+
+      @if (numberOfAvailableGames() > 0) {
+        <button class="btn btn-secondary w-100 mt-2" (click)="onJoinGame(gameResourceMap.id)">
+          Join Game
+        </button>
+      }
+
+      @if (availableGamesId().includes(gameResourceMap.id)) {
+        <span class="badge bg-success mt-2">
+          Games available to join: {{ numberOfAvailableGames() }}
+        </span>
+      }
+    </div>
   </div>
 </div>

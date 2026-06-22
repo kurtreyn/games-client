@@ -73,7 +73,6 @@ export class GameLobbyApi {
                         text: rawData.text,
                         userName: rawData.userName,
                         games_available: rawData.games_available,
-                        join_keys: rawData.join_keys,
                         timeStamp: new Date(rawData.timeStamp) // ISO to Date conversion
                     };
 
